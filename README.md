@@ -7,9 +7,11 @@
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
 
 ### TradingView Links
-- Deep Dive Idea → [Take a look at the full ecosystem behind](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/){:target="_blank"}
-- Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/){:target="_blank"}
-- Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/){:target="_blank"}
+- Deep Dive Idea → [Take a look at the full ecosystem behind](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/)
+- Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
+- Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
+
+- <a href="https://www.tradingview.com/script/WrInRKvm/" target="_blank">Website</a>
 
 ### Gallery (click to enlarge + arrows → to slide)
 
