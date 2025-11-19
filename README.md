@@ -29,7 +29,8 @@ d:<img src="https://raw.githubusercontent.com/user-attachments/assets/a2f085c7-0
 <img src="img/DOGEUSDT.P_06.png" width="80"/></img>
 
 Test:
-<img src="https://cloud.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
+<img src="https://raw.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
+<img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img> 
 
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
