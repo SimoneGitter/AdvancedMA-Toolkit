@@ -13,7 +13,7 @@
 
 ### Gallery (click to enlarge + arrows → to slide)
 
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png target=”_blank”" width="80"></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_01.png" width="80"></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_02.png" width="80"></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_03.png" width="80"/></img>
