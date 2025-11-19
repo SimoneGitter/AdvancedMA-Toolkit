@@ -29,7 +29,7 @@
 <img src="img/DOGEUSDT.P_06.png" width="80"/></img>
 
 Qui:
-[![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/main/vid/DAX_GER30.gif)
+[![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif
 [![vid](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 2
