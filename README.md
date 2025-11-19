@@ -44,7 +44,7 @@ Test 2:
 https://raw.githubusercontent.com/malzariey/filament-daterangepicker-filter/x4/art/light.png
 
 Test 3:
-<img src="https://raw.githubusercontent.com/Simone_View/AdvancedMA-Toolkit/main/img/DOGEUSDT.P_06.png" alt="Options Tip" width="400">
+<img src="https://raw.githubusercontent.com/Simone_View/AdvancedMA-Toolkit/main/art/img/DOGEUSDT.P_06.png" alt="Options Tip" width="400">
 
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
