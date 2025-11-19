@@ -1,7 +1,4 @@
-# AdvancedMA Toolkit – Complete Trading System with Auto-RR & Virtual Stats
-
-// https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
-// ![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/XRP_%26_Table.gif)
+# AdvancedMA Toolkit – Complete Trading System\nwith Auto-RR & Virtual Stats
 
 ![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 
@@ -14,7 +11,6 @@
 - Indicator → [https://www.tradingview.com/script/.../AdvancedMA_Toolkit_Private/](https://www.tradingview.com/script/WrInRKvm/)
 
 ### Gallery (click to enlarge + arrows)
-
 <img src="img/DAX_GER30.png" width="800"/>
 <img src="img/DOGEUSDT.P_00.png" width="800"/>
 <img src="img/DOGEUSDT.P_01.png" width="800"/>
@@ -40,5 +36,7 @@ import Simone_View/AdvancedMAToolkit_Private/1 as amt
 ### MQL4/5 Conversion · Custom Work
 Full port or custom EA in 24-48h (€100–300)  
 TradingView @Simone_View · GitHub @tuo-username
+
+![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/XRP_%26_Table.gif)
 
 Open for freelance · DM on TradingView or here on GitHub
