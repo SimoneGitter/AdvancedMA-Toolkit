@@ -30,7 +30,8 @@ d:<img src="https://raw.githubusercontent.com/user-attachments/assets/a2f085c7-0
 
 Test:
 <img src="https://raw.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
-<img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img> 
+<img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
+![alt text](https://github.com/SimoneGitter/markdown-here/raw/master/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
 
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
