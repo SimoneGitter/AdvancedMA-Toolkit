@@ -1,7 +1,7 @@
 # AdvancedMA Toolkit – Complete Trading System
 # with Auto-RR & Virtual Stats
 
-![Alt](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/vid/DAX_GER30.gif?token=GHSAT0AAAAAADMOG2SB7GNNHEDNPWHBLXGG2I5W2EQ)
+![Alt](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/vid/DAX_GER30.gif?token=GHSAT0AAAAAADMOG2SB64R45MIPRJVZAUCW2I5W5SQ)
 
 > Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
@@ -13,7 +13,7 @@
 
 ### Gallery (click to enlarge + arrows → to slide)
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7XXPJXYTI3QTHYCQ2I5VOVQ+raw=true" width="150"></img>
-<img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SAMIEKF4AG6YNUAMDM2I5WQLA" width="150"></img>
+<img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7GNNHEDNPWHBLXGG2I5W2EQ" width="150"></img>
 <img src="img/DOGEUSDT.P_00.png" width="80"></img>
 <img src="img/DOGEUSDT.P_01.png" width="80"></img>
 <img src="img/DOGEUSDT.P_02.png" width="80"></img>
