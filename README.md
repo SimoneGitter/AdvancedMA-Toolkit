@@ -10,6 +10,17 @@ https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
 - Library → [https://www.tradingview.com/script/.../AdvancedMAToolkit_Private/](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [https://www.tradingview.com/script/.../AdvancedMA_Toolkit_Private/](https://www.tradingview.com/script/WrInRKvm/)
 
+### Gallery (click to enlarge + arrows)
+
+<img src="img/DAX_GER30.png" width="800"/>
+<img src="img/DOGEUSDT.P_00.png" width="800"/>
+<img src="img/DOGEUSDT.P_01.png" width="800"/>
+<img src="img/DOGEUSDT.P_02.png" width="800"/>
+<img src="img/DOGEUSDT.P_03.png" width="800"/>
+<img src="img/DOGEUSDT.P_04.png" width="800"/>
+<img src="img/DOGEUSDT.P_05.png" width="800"/>
+<img src="img/DOGEUSDT.P_06.png" width="800"/>
+
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
 - Dynamic period + Linear Regression clamping
@@ -22,3 +33,9 @@ https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
 ### Quick Import
 ```pinescript
 import Simone_View/AdvancedMAToolkit_Private/1 as amt
+
+### MQL4/5 Conversion · Custom Work
+Full port or custom EA in 24-48h (€100–300)  
+TradingView @Simone_View · GitHub @tuo-username
+
+Open for freelance · DM on TradingView or here on GitHub
