@@ -7,7 +7,7 @@
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
 
 ### TradingView Links
-- Deep Dive Idea → [https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/]
+- Deep Dive Idea → [Take a look at the full ecosystem behind](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/)
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
