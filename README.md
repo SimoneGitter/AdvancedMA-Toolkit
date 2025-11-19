@@ -40,7 +40,7 @@ Test 1:
 Test 2:
 // https://github.com/{repo_user}/{repo}/raw/{branch}/art/{path_to_the_image_in_repo}
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/art/vid/DAX_GER30.gif" width="15%"></img>
-<img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/art/vid/DAX_GER30.gif" width="15%"></img>
+<img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/art/vid/DAX_GER30.gif" width="15%"></img>
 https://raw.githubusercontent.com/malzariey/filament-daterangepicker-filter/x4/art/light.png
 
 Qui:
