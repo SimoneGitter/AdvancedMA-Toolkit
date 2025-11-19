@@ -11,6 +11,7 @@
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
+<img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
 ### Gallery (click to enlarge + arrows → to slide)
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7XXPJXYTI3QTHYCQ2I5VOVQ+raw=true" width="150"></img>
 <img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7GNNHEDNPWHBLXGG2I5W2EQ" width="150"></img>
