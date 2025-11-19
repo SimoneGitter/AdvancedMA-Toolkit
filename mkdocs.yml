@@ -1,3 +1,15 @@
 plugins:
   - search
   - open-in-new-tab
+  
+plugins:
+  - privacy:
+      links_attr_map:
+        target: _blank
+
+markdown_extensions:
+  - attr_list
+
+
+
+  
