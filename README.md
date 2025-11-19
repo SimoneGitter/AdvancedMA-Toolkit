@@ -30,7 +30,7 @@ Test Y: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-
 ### TEST - SAME TAB - Zoom OK
 Test 3: <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" alt="Options Tip" width="80">
 
-Test NEW: <img src="https://cloud.githubusercontent.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
+Test NEW: <img src="https://cloud.githubusercontent.com/user-attachments/assets/4307137/10112028/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
