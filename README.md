@@ -12,14 +12,14 @@
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
 ### Gallery (click to enlarge + arrows → to slide)
-<img src="img/DAX_GER30.png" width="80"/>
-<img src="img/DOGEUSDT.P_00.png" width="80"/>
-<img src="img/DOGEUSDT.P_01.png" width="80"/>
-<img src="img/DOGEUSDT.P_02.png" width="80"/>
-<img src="img/DOGEUSDT.P_03.png" width="80"/>
-<img src="img/DOGEUSDT.P_04.png" width="80"/>
-<img src="img/DOGEUSDT.P_05.png" width="80"/>
-<img src="img/DOGEUSDT.P_06.png" width="80"/>
+<img src="img/DAX_GER30.png" width="80"></img>
+<img src="img/DOGEUSDT.P_00.png" width="80"></img>
+<img src="img/DOGEUSDT.P_01.png" width="80"></img>
+<img src="img/DOGEUSDT.P_02.png" width="80"></img>
+<img src="img/DOGEUSDT.P_03.png" width="80"/></img>
+<img src="img/DOGEUSDT.P_04.png" width="80"/></img>
+<img src="img/DOGEUSDT.P_05.png" width="80"/></img>
+<img src="img/DOGEUSDT.P_06.png" width="80"/></img>
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
