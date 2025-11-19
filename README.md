@@ -1,4 +1,5 @@
-# AdvancedMA Toolkit – Complete Trading System\nwith Auto-RR & Virtual Stats
+# AdvancedMA Toolkit – Complete Trading System
+# with Auto-RR & Virtual Stats
 
 ![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 
@@ -6,7 +7,7 @@
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
 
 ### TradingView Links
-- Deep Dive Idea → [https://www.tradingview.com/chart/.../tuo-link-idea-private](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/)
+- Deep Dive Idea → [https://www.tradingview.com/chart/.../https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/]
 - Library → [https://www.tradingview.com/script/.../AdvancedMAToolkit_Private/](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [https://www.tradingview.com/script/.../AdvancedMA_Toolkit_Private/](https://www.tradingview.com/script/WrInRKvm/)
 
