@@ -23,13 +23,14 @@
 
 
 ### TEST - NEW TAB - NO Zoom
-1:<img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
-c:<img width="80" height="50" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
-Test Y: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
+1: <img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
+2: <img width="80" height="50" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
+3: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
 
 ### TEST - SAME TAB - Zoom OK
-Test 3: <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" alt="Options Tip" width="80">
+A: <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" alt="Options Tip" width="80">
 
+### TEST - NEW TAB - Zoom OK (PERFECT)
 Test NEW: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff?raw=true" width="15%"></img>
 
 ### Core Features
