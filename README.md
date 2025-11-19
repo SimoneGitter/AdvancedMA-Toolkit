@@ -11,11 +11,11 @@
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
-1:<img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
-
 ### Gallery (click to enlarge + arrows → to slide)
 
-c:<img width="1920" height="926" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
+NEW TAB - NO Zoom
+1:<img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
+c:<img width="80" height="50" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
 
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png" width="80"></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_01.png" width="80"></img>
