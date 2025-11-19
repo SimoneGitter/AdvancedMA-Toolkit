@@ -18,6 +18,7 @@
 ### Gallery (click to enlarge + arrows → to slide)
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7XXPJXYTI3QTHYCQ2I5VOVQ+raw=true" width="150"></img>
 <img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7GNNHEDNPWHBLXGG2I5W2EQ" width="150"></img>
+<img width="1920" height="926" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
 <img src="img/DOGEUSDT.P_00.png" width="80"></img>
 <img src="img/DOGEUSDT.P_01.png" width="80"></img>
 <img src="img/DOGEUSDT.P_02.png" width="80"></img>
