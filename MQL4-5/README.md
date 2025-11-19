@@ -1,0 +1,1 @@
+“Full MQL5 version ready in 24-48h on demand”

@@ -1,0 +1,1568 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Simone_View
+
+//@version=6
+library('AdvancedMAToolkit_Private', true, true)
+// A comprehensive, self-contained library for advanced moving average calculations, 
+// trend detection, and trading signals. Fully standalone with no external dependencies.
+// The functions have a built-in triple fallback:s
+// they will attempt to calculate the requested average if they cannot find the previous value, using the most recent value from the source,
+// and finally return the current result if available, otherwise the previous one, and if unsuccessful, they will always return the source itself.
+// This system prevents the functions from returning ‘na’ in most cases.
+
+// ================================
+// CORE HELPER FUNCTIONS
+// ================================
+
+// @function            ***Value validity check***
+//                      - The function check if the value passed is not undefined or zero and if so return true
+// @param val           Value to check
+// @returns             True if value is not na and not zero
+export nonan(float val) =>
+    not (na(val) or val==0)
+
+// @function            ***Zero-divide protection***
+//                      - This helper funcition ensure that there's no division by zero
+// @param val           Denominator value to check
+// @param sub           Fallback value if denominator is invalid (default: 1.0)
+// @returns             Safe denominator value
+export zd(float val, float sub=1.0) =>
+    val!=0 ? nz(val, sub) : sub
+
+// @function            ***Safe power calculation***
+// @param base          Base value
+// @param exponent      Exponent value  
+// @param fallback      Fallback if calculation fails (default: 1.0)
+// @returns             base^exponent or fallback
+export safePow(float base, float exponent, float fallback=1.0) =>
+    nonan(base) and nonan(exponent) ? math.pow(base, exponent) : fallback
+
+// ================================
+// CORE MOVING AVERAGE FUNCTIONS
+// ================================
+
+// @function            ***Exponential Weighted Moving Average (base function)***
+// @param src           Source: Data series on which to calculate the EWM Average
+// @param alpha         Smoothing parameter (0-1)
+// @returns             The function will return the EWMA value if it exists, otherwise\
+//                      the previous value if available or the source value itself as a fallback.
+export ewma(series float src, series float alpha) =>
+    float res = na
+    res := nz(alpha * src + (1.0 - alpha) * nz(res[1], src), nz(res[1], src))
+    res
+
+// @function                ***ATR function*** 
+//                          - 
+// @param length            (series int/float) Length for the smoothing parameter calculation.
+// @returns                 (float) The ATR value.
+export atr(series float length) =>
+    float alpha  = 1.0 / math.max(1.0, length)
+    float result = ewma(ta.tr(true), alpha)
+
+// @function            ***Alternative EMA with dynamic float length support***
+// @param src           Source: Data series to process
+// @param len           Length period (supports dynamic float values)
+// @param alpha         Smoothing multiplier (default 2.0 for standard EMA)
+// @returns             The function will return the EMA value if it exists, otherwise\
+//                      the previous value if available or the source value itself as a fallback.
+export ema(series float src, series float len, series float alpha=2.0) =>
+    float pha = nz(alpha, 2.0) / zd(math.max(1.0, len) + 1.0)
+    ewma(src, pha)
+
+// @function            ***Rolling Moving Average with dynamic length***
+// @param src           Source data series
+// @param len           Length period (supports dynamic float values)
+// @param alpha         Smoothing multiplier (default: 1.0 for standard RMA)
+// @returns             RMA value with robust fallback protection inherited from ewma and additonal internal checkings
+export rma(series float src, series float len, series float alpha=1.0) =>
+    float pha = nz(alpha, 1.0) / zd(math.max(1.0, len))
+    ewma(src, pha)
+
+// @function            ***Double Exponential Moving Average***
+// @param src           Source data series
+// @param len           Length period
+// @param mul           DEMA multiplier (default: 2.0)
+// @param alpha         Smoothing multiplier (default: 2.0)
+// @returns             DEMA value with complete error protection inherited from ema
+export dema(series float src, series float len, series float mul=2.0, series float alpha=2.0) =>
+    float ema = ema(src, len, alpha)
+    mul * ema - ema(ema, len, alpha)
+
+// @function            ***Triple Exponential Moving Average***
+// @param src           Source data series
+// @param len           Length period
+// @param mul           TEMA multiplier (default: 3.0)
+// @param alpha         Smoothing multiplier (default: 2.0)
+// @returns             TEMA value with complete error protection inherited from ema
+export tema(series float src, series float len, series float mul=3.0, series float alpha=2.0) =>
+    float ema1 = ema(src, len, alpha)
+    float ema2 = ema(ema1, len, alpha)
+    mul * (ema1 - ema2) + ema(ema2, len, alpha)
+
+// HMA ORIGINALE: ta.wma(2 * ta.wma(src, ilen / 2) - ta.wma(src, ilen), math.round(math.sqrt(len)))
+
+// @function            ***Hull Moving Average with zero-divide protection***
+// @param src           Source data series
+// @param len           Length period
+// @param ratio         Custom ratio for HMA calculation
+// @returns             HMA value with full error protection
+export hma(series float src, series int len=20, series float ratio=2.0) =>
+    int safeLen = math.max(1, int(zd(len, 20)))                                                                                         // Default 20
+    float rawHMA = nz(ratio, 2.0) * ta.wma(src, math.max(1, int(math.round(nz(ratio, 2.0) * safeLen / 2.0)))) - ta.wma(src, safeLen)    // (ratio * WMA Half len) - WMA Normal len
+    float result = ta.wma(rawHMA, math.max(1, int(math.round(math.sqrt(safeLen)))))                                                     // WMA Sqtr len of rawHMA
+    nz(result, nz(result[1], src))
+
+// @function            ***Zero-Lag Exponential Moving Average***
+// @param src           Source data series
+// @param len           Length period
+// @param ratio         Ratio Smoothing Value (Default 2.0)
+// @returns             ZLEMA value with full triple fallback protection
+export zlema(series float src, series int len, series float ratio=2.0) =>
+    ema(2 * src - src[math.max(1, int((zd(len) - 1.0) / zd(ratio, 2.0)))], len)
+
+// @function            ***Fractal Adaptive Moving Average with log protection***
+// @param src           Source data series
+// @param len           Length period
+// @param sensitivity   Adaptive sensitivity multiplier (default: 4.6)
+// @param ratio         Ratio Smoothing Value (Default 2.0)
+// @returns             FRAMA value with full mathematical safety
+export frama(series float src, series int len, series float sensitivity = 4.6, float ratio=2.0) =>
+
+    int safeLen = math.max(6, int(zd(len, 16)))                                     // Default 16. FRAMA requires at least 6 bars for stable fractal calculations.
+    int halfLen = math.max(3, int(math.round(safeLen / 2.0)))                       // halfLen must be at least 3 to have meaningful maximums/minimums
+    
+    float hh = ta.highest(halfLen)
+    float ll = ta.lowest(halfLen)
+    
+    // CORRECT MATH PROTECTION: Calculate D from a safe ratio from Original formula avoiding log(0) and with clamping. Inherit fallbacks and robust error checkings from ewma function
+    ewma(src, math.max(0.01, math.min(math.exp(-nz(sensitivity, 4.6) * (math.log(math.max((((hh - ll) / halfLen) + ((hh[halfLen] - ll[halfLen]) / halfLen)) / math.max((ta.highest(safeLen) - ta.lowest(safeLen)) / safeLen, 1.0), 1.0)) / zd(math.log(zd(ratio, 2.0)) - 1.0))), 1.0)))
+
+// @function            ***Generalized DEMA (base for T3)***
+// @param src           Source data series  
+// @param len           Length period
+// @param vf            Volume factor (responsiveness)
+// @returns             GD value with full protection
+export gd(series float src, series float len, series float vf=0.7) =>
+    float safeLen = zd(len)
+    float safeVf = zd(vf, 0.7)
+    float ema = ema(src, safeLen)
+    float result = ema * (1 + safeVf) - ema(ema, safeLen) * safeVf
+    nz(result, nz(result[1], src))
+
+// @function            ***Tilson T3 Moving Average***
+// @param src           Source data series
+// @param len           Length period  
+// @param vf            Volume factor (0.7 default)
+// @returns             T3 value with complete error protection inherited from gd function adding period and volume factor validation
+export t3(series float src, series float len, series float vf = 0.7) =>
+    float safeLen = zd(len)
+    float safeVf = zd(vf, 0.7)
+    gd(gd(gd(zd(src, src[1]), safeLen, safeVf), safeLen, safeVf), safeLen, safeVf)
+
+// @function            ***Triangular Moving Average (TMA)***
+// @param src           Source data series
+// @param len           Length period
+// @returns             TMA value (double SMA) with protection
+export tma(series float src, series int len=20) =>
+    float safeSrc = zd(src, src[1])
+    int safeLen = math.max(1, int(zd(len, 20)))
+    float result = ta.sma(ta.sma(src, safeLen), safeLen)
+    nz(result, nz(result[1], src))
+
+// @function            ***Triangular Moving Average Weighted***
+// @param src           Source data series
+// @param len           Length period
+// @param ratio         Ratio Smoothing Value (Default 2.0)
+// @returns             TRIMA value with robust fallback
+export trima(series float src, series int len=20, float ratio=2.0) =>
+    float safeSrc = zd(src, src[1])
+    float safeLen = zd(len, 20)
+    float safeRatio = zd(ratio, 2.0)
+    float result = ta.sma(ta.sma(safeSrc, math.ceil(safeLen / safeRatio)), math.floor(safeLen / safeRatio) + 1)
+    nz(result, nz(result[1], safeSrc))
+
+// @function            ***Enhanced SuperTrend with comprehensive protection***
+// @param factor        ATR multiplier factor
+// @param atrLen        ATR length period  
+// @param useWicks      Use high/low instead of close for signals
+// @param maxLookback   Maximum bars for lookback protection
+// @returns             [superTrend, direction] with full error handling
+export supertrend(series float factor, series float atrLen=10, series bool useWicks=false, series int maxLookback=4999) =>
+    float src = hl2
+    int dir = 1
+    float st = na
+    
+    // Protected lookback with bounds checking
+    int safeAtrLen = int(math.min(nz(atrLen, 10), nz(maxLookback, 4999)))                            // Default 10
+    float atrVal = atr(safeAtrLen) * nz(factor, 2.0)
+    
+    float upper = src + atrVal
+    float lower = src - atrVal
+    float priceHigh = useWicks ? high : close
+    float priceLow = useWicks ? low : close
+    
+    float prevLower = nz(lower[1], lower)
+    float prevUpper = nz(upper[1], upper)
+    
+    lower := lower > prevLower or nz(priceLow[1], priceLow) < prevLower ? lower : prevLower
+    upper := upper < prevUpper or nz(priceHigh[1], priceHigh) > prevUpper ? upper : prevUpper
+    
+    float prevST = nz(st[1], src)
+    if na(atrVal[1])
+        dir := 1
+    else if prevST == prevUpper
+        dir := nz(priceHigh, src) > upper ? -1 : 1
+    else
+        dir := nz(priceLow, src) < lower ? 1 : -1
+    
+    st := dir == -1 ? lower : upper
+    [nz(st, nz(st[1], src)), dir]
+
+
+//////////////////////////////////////////////////////////////////////////////////
+//      MA Rotator, Trend and Signal Calculation with Linear Regression ->      //
+//////////////////////////////////////////////////////////////////////////////////
+// 
+
+// @enum ma List of available Moving Averages
+export enum ma
+    sma='SMA'
+    ema='EMA'
+    rma='RMA'
+    wma='WMA'
+    vwma='VWMA'
+    dema='DEMA'
+    tema='TEMA'
+    hma='HMA'
+    zlema='ZLEMA'
+    frama='FRAMA'
+    supert='SUPERT'
+    tma='TMA'           // Triangular MA (double SMA)
+    trima='TRIMA'       // Triangular MA (weighted)
+    t3='T3'             // Tilson T3
+
+// @function A method that converts a string representing a moving average into the corresponding enum, regardless of capitalization.
+// For example, ‘sma’ or ‘SMA’ will both be accepted.
+export method to_enum(string str) =>
+    switch str.upper(str)
+        'SMA' => ma.sma
+        'EMA' => ma.ema
+        'RMA' => ma.rma
+        'WMA' => ma.wma
+        'VWMA' => ma.vwma
+        'DEMA' => ma.dema
+        'TEMA' => ma.tema
+        'HMA' => ma.hma
+        'ZLEMA' => ma.zlema
+        'FRAMA' => ma.frama
+        'SUPERT' => ma.supert
+        'TMA' => ma.tma
+        'TRIMA' => ma.trima
+        'T3' => ma.t3
+        => ma.ema   // Default fallback
+
+// @type ma_vars Object containing inputs and results for a 'ma' function 
+// @field type The MA type enum reference
+// @field src The Moving Average source. Example: close
+// @field len The Moving Average period  
+// @field factor The multiplier or ratio used in functions when required
+// @field fix If >0 enables error correction attempts according to chosen number. 0-Disabled; 1-Only Series errors (and period resizing); 2-Only absent results (na or 0); 3-All
+// @field bars_limit Maximum bars limit for calculations
+// @field ma_res The float result of the Moving Average
+export type ma_vars
+    // INPUTS
+    ma type=ma.supert
+    float src=close
+    float len=200
+    float factor=2.0
+    int fix=3
+    int bars_limit=4999
+    // RESULTS
+    float ma_res=na
+
+// @type ***Trend and Signals (Object)*** Object containing inputs and results of the 'trend_and_signals' function that takes a Moving Average and calculates its Trend and possible Signals through parameters and logics related to the linear regression of the same average and its cross with it.
+// **INPUTS**
+// @field ma An object of type 'ma_vars' containing inputs and results of the 'ma' function
+// @field din If Active the period will be dynamicized
+// @field min_dlen Minimum Period allowed
+// @field max_dlen Maximum Period allowed  
+// @field step_dlen Step at which to change the Period if Necessary
+// @field lreg_offset Offset of the Linear Regression
+// @field inv If You Want to Increase (true) or Decrease (false) the Period over time (in Bars) starting from its reset that occurs at each cross between the ma and its linear regression
+// @field sp *Start Point*: The restart point of the period at each cross between the ma and its regression. false -> "Chosen Extremes"; true -> "Initial Period". If increasing the period over time and restarting from extremes, it will restart from the minimum allowed period, conversely if decreasing. If choosing to restart from the Initial Period at each reset this will be set and will increase or decrease over time according to the chosen option.
+// @field min_bars Minimum number of bars to accept a trend
+// @field use_reg If active the linear regression will also be used to calculate the trend (No effect if using the 'Super Trend' average)
+// @field cross_in_trend If active only crosses in already started trends will confirm a reset and consequently influence the signals, if disabled, any cross will be recorded and always valid, increasing the dynamism of the period with consequent change in the recording of signals and in the determination of the trend.
+// - RETEST SYSTEM
+// @field retestEnabled Enable retest system for signal confirmation
+// @field retestPct Retest zone percentage threshold (e.g., 0.5 = 0.5%)
+// @field minRetests Minimum retest occurrences required for signal generation
+// @field repeatSignals Allow repeated signals on subsequent retests
+// @field entryTrigger Price source for entry signal validation ("High\Low", "Open", "Close", etc.)
+// @field exitTrigger Price source for exit signal validation
+// - MOMENTUM FILTER
+// @field useMomentum Enable momentum-based signal filtering
+// @field aggressiveMom Aggressive momentum mode requiring both simple and percentage momentum
+// @field momentumSimpleBase Base source for simple momentum calculation ("Price" or "MA")
+// @field momentumPctBase Base source for percentage momentum calculation ("Price" or "MA")
+// @field mom_bars Lookback period for momentum calculation
+// @field minMovePct Minimum price movement percentage for momentum validation
+// - MULTI-MA FILTERS
+// @field useFastMA Enable fast MA filter layer
+// @field fastMAType MA type for fast filter
+// @field fastMABase Base source for fast MA ("Price" or "MA")
+// @field fastMALen Period for fast MA filter
+// @field useMediumMA Enable medium MA filter layer
+// @field mediumMAType MA type for medium filter
+// @field mediumMABase Base source for medium MA ("Price" or "MA")
+// @field mediumMALen Period for medium MA filter
+// @field useSlowMA Enable slow MA filter layer
+// @field slowMAType MA type for slow filter
+// @field slowMABase Base source for slow MA ("Price" or "MA")
+// @field slowMALen Period for slow MA filter
+// - PATTERNS AND LIMITS
+// @field usePatterns Enable candlestick pattern confirmation (Inside Bar, Engulfing)
+// @field minBarsBetween Minimum bars between consecutive signals (anti-spam)
+// @field max_bars Maximum bars limit for calculations
+// @field noRepaint Enable non-repainting signals (confirm on bar close)
+// **RESULTS**
+// @field up UP Signal
+// @field dn Down Signal
+// @field general_dir General Direction of the Moving Average
+// @field len_x Dynamically recalculated Period
+// @field ma_reg The Average of the Linear Regression calculated on the chosen MA
+// @field res_dir The Relative Direction of the Chosen MA
+// @field reg_dir The Relative Direction of the MA's Linear Regression
+export type trend_and_signals
+    //                                  **INPUTS**
+    ma_vars ma
+    bool din=true
+    int min_dlen=2
+    int max_dlen=750
+    int step_dlen=1
+    int lreg_offset=3
+    bool inv=true
+    bool sp=true
+    int min_bars=3
+    bool use_reg=true
+    bool cross_in_trend=true
+    //                                  - RETEST SYSTEM
+    bool retestEnabled=true
+    float retestPct=0.5
+    int minRetests=1
+    bool repeatSignals=true
+    string entryTrigger="High\Low"
+    string exitTrigger="Open"
+    //                                  - MOMENTUM FILTER
+    bool useMomentum=true
+    bool aggressiveMom=false
+    string momentumSimpleBase="Price"
+    string momentumPctBase="MA"
+    int mom_bars=3
+    float minMovePct=0.5
+    //                                  - MULTI-MA FILTERS
+    bool useFastMA=true
+    ma fastMAType
+    string fastMABase="Price"
+    float fastMALen=5
+    bool useMediumMA=true
+    ma mediumMAType
+    string mediumMABase="Price"
+    float mediumMALen=20
+    bool useSlowMA=true
+    ma slowMAType
+    string slowMABase="Price"
+    float slowMALen=60
+    //                                  - PATTERNS AND LIMITS (For Bars & Signals)
+    bool usePatterns=false
+    int minBarsBetween=6
+    int max_bars=4999
+    bool noRepaint=true
+    //                                  **RESULTS**
+    bool up=false
+    bool dn=false
+    int general_dir=0
+    int len_x=na
+    float ma_reg=na
+    int res_dir=0
+    int reg_dir=0
+
+// ======================================
+//  *** SWITCHER (MA Rotator System) ***
+// ======================================
+
+// NOTE:
+// In 'ma()' there are no moving average functions that accept only a 'simple int' as len because if a function inside another function can only accept a simple int
+// in one of its parameters and that parameter comes directly from the main function's parameters, the type will be automatically 'degraded'.
+// Here for example len which is declared as 'float' in the main parameters, if used in even just one function that expects len to be 'simple int' will undergo auto-casting
+// of the original function type changing it automatically in this way:
+// 
+// ma(series string type, series float src, simple int len)=> transforming 'series float len' into 'simple int len'.
+// 
+// Also there is no overload that provides for converting len from int to float or that directly uses an integer because in Pine Script 6 the casting of int to float
+// happens automatically when calling the function, which therefore will be usable with both float and int periods.
+// 
+// fix -> 0-Disabled; 1-Series (and len in range); 2-nonan (no 'na' and '0' results); 3-All (Series and nonan)
+
+// @function ma ***Moving Average Rotator***
+// - A function that allows calculating a Moving Average from an Enumerated List. It's possible to use the Overload that allows referring to the MA through
+// its string representation (Uppercase/Lowercase).
+// @param type The MA type enum reference
+// @param src The Moving Average source. Example: close
+// @param len The Moving Average period
+// @param fix If >0 enables error correction attempts according to chosen number. 0-Disabled; 1-Only Series errors (and period resizing); 2-Only absent results (na or 0); 3-All
+// @param bars_limit Maximum bars limit for calculations
+// @returns The chosen Moving Average (float)
+export ma(ma type, series float _src, series float _len, series float factor=2.0, series int fix=3, series int bars_limit=4999)=> // Moving Average
+
+    var float src = _src, var float res = na, var float len = _len, var bool fix_series = fix==1 or fix==3
+
+    if fix_series // avoid_series_errors
+        max_bars_back(_src, 4999)   // * Questo spesso evita l'errore di serie
+        max_bars_back(src, 4999)    // *
+        max_bars_back(_len, 4999)   // * Questo per sicurezza
+        max_bars_back(res, 4999)    // *
+    
+    src := _src
+
+    // Mi assicuro che il periodo sia compreso tra 1 e bars_limit (un range ragionevole per evitare errori)
+    len := fix_series?math.max(math.min(_len, bars_limit), 1):_len // Deve essere dinamico senza 'var'
+
+    var int ilen = int(len)         // Alcune funzioni richiedono un periodo 'int'
+
+    res := switch str.tostring(type)
+
+        'SMA' => ta.sma(src, ilen) // Simple Moving Average
+
+        // 'EMA' => ta.ema2(src, len) // Exponential Moving Average (Alternate Version)
+        'EMA' => ema(src, len) // Exponential Moving Average (Alternate Version)
+
+        // 'RMA' => ta.rma2(src, len) // Rolling Moving Average (Alternate Version)
+        'RMA' => rma(src, len) // Rolling Moving Average (Alternate Version)
+
+        'WMA' => ta.wma(src, ilen) // Weighted Moving Average
+
+        'VWMA' => ta.vwma(src, ilen) // Volume Weighted Moving Average
+
+        // 'DEMA' => ta.dema2(src, len) // Double Exponential Moving Average (Alternate Version)
+        'DEMA' => dema(src, len) // Double Exponential Moving Average (Alternate Version)
+
+        // 'TEMA' => ta.tema2(src, len) // Triple Exponential Moving Average (Alternate Version)
+        'TEMA' => tema(src, len) // Triple Exponential Moving Average (Alternate Version)
+
+        // 'HMA' => ta.wma(2 * ta.wma(src, ilen / 2) - ta.wma(src, ilen), math.round(math.sqrt(len))) // Hull Moving Average
+        'HMA' => hma(src, ilen) // Hull Moving Average
+
+        // 'ZLEMA' => ta.ema2(src + src - src[(len - 1) / 2], ilen) // ZERO LAG Exponential Moving Average
+        'ZLEMA' => zlema(src, ilen) // ZERO LAG Exponential Moving Average
+
+        // 'FRAMA' => ta.frama(src, ilen) // Fractal Moving Average
+        'FRAMA' => frama(src, ilen) // Fractal Moving Average
+
+        // 'SUPERT' => [ln, dir] = ta.supertrend2(src, len), ln // SUPER TREND 2 (Alternate Version)
+        'SUPERT' => [ln, dir] = supertrend(factor, len), ln // SUPER TREND 2 (Alternate Version)
+
+        // 'TMA' => ta.t3Alt(src, len) // Triangular Moving Average
+        'TMA' => tma(src, ilen) // Triangular Moving Average
+
+        // 'TRIMA' => ta.trima(src, ilen)
+        'TRIMA' => trima(src, ilen) // Triangular Moving Average (Weighted)
+
+        'T3' => t3(src, len) // Tilson Moving Average (T3) (Alternate Version)
+
+    // Fix 2 - Con il fix (2 o 3) attivo sostituisce in caso di errori il risultato con un sma ricalcolata internamente se fallisce, il valore di src sarà restituito.
+    if fix>1 and (na(res) or res==0)                // Se il risultato è 'na' o '0' proverà a calcolare l'sma internamente al posto della 'ma' scelta
+        sum = 0.0
+        for i = 0 to len - 1
+            sum += src[i] / len
+        res := not (na(res) or res==0) ? sum : src  // Se il risultato è ancora 'na' o '0' il semplice valore di 'src' verrà utilizzato in sostituzione
+    
+    res
+        
+export ma(string type, series float src, series float len, series float factor=2.0, series int fix=3, series int bars_limit=4999)=> 
+    ma(type.to_enum(), src, len, factor, fix, bars_limit)
+
+// @function ma
+export ma(ma_vars obj, ma type, series float src, series float len, series float factor=2.0, series int fix=3, series int bars_limit=4999) =>
+    tmp_obj = not na(obj) ? obj : ma_vars.new(type, src, len, fix, bars_limit)
+    tmp_obj.ma_res := ma(type, src, len, factor, fix, bars_limit)
+    tmp_obj
+
+// @function            ***Retest Detection System***
+// @param src           Source price series
+// @param maValue       Moving average value to monitor
+// @param retestPct     Retest zone percentage (e.g., 0.01 for 1%)
+// @param minRetests    Minimum retests required for signal
+// @param direction     Trend direction to monitor (1=bullish, -1=bearish, 0=both)
+// @param enabled       Enable/disable retest system
+// @returns             [retestCount, inZone, signalGenerated]
+export retestSystem(series float src, series float maValue, series float retestPct = 0.01, series int minRetests = 2, series int direction = 0, series bool enabled = true) =>
+    
+    var bool signalGenerated=false, var bool inZone=false, var int retestCount=0
+
+    if enabled
+        // Calculate retest zone boundaries
+        float zoneUpper = maValue * (1 + retestPct)
+        float zoneLower = maValue * (1 - retestPct)
+        
+        // Check if price is in retest zone
+        inZone := src >= zoneLower and src <= zoneUpper
+        
+        // Retest counter with reset logic
+        retestCount := 0
+        var bool wasInZone = false
+        
+        if inZone and not wasInZone
+            // Price just entered zone - increment counter
+            retestCount := retestCount + 1
+        else if not inZone and wasInZone
+            // Price left zone - check if we should reset
+            if retestCount >= minRetests
+                retestCount := 0  // Reset after successful signal
+        
+        wasInZone := inZone
+        
+        // Signal generation based on direction and retest count
+        signalGenerated := retestCount >= minRetests and (direction == 0 or (direction > 0 and src > maValue) or (direction < 0 and src < maValue))
+    
+    [retestCount, inZone, signalGenerated]
+
+// Helper for MA Base
+isPriceBase(string base="Price") =>
+    base == "Price"
+
+// Helper for Area Trigger
+getTriggerPrice(string type="Close", int dir=1) =>
+    switch type
+        "High\Low" => dir>=0 ? low : high    // Direction Based (spike low when Long, high when Short)
+        "Open" => open
+        "High" => high
+        "Low" => low
+        "Close" => close
+        "hl2" => hl2
+        "hlc3" => hlc3
+        "ohlc4" => ohlc4
+        "hlcc4" => hlcc4
+        => close                            // Default Falback: close
+
+// @function - ***Helper for len clamping***
+fix(float len, int max=4999) =>
+    math.min(math.max(len, 1), max)
+
+// @function - ***Helper for len clamping***
+fix(int len, int max=4999) =>
+    math.min(math.max(len, 1), max)
+
+// ==================================
+//  *** TREND AND SIGNAL SYSTEM ***
+// ==================================
+
+// @function ***Trend and Signal:*** Advanced Trend and Signal Detection
+// - Comprehensive function that analyzes a Moving Average to determine trend direction
+//   and generate trading signals using the linear regression of the average itself and its cross with it,
+//   with the addition of a multi-filter confirmation
+// 
+// @param type MA type enum for calculation
+// @param src Source price for cross detection (can differ from MA source). Examples: close, open, high, low
+// @param ma_res Moving Average value to analyze for trends and signals
+// @param len Base period length used as starting/reset point for dynamic period calculation when requested
+// @param din Enable dynamic period adjustment
+// @param min_dlen Minimum allowed dynamic period
+// @param max_dlen Maximum allowed dynamic period  
+// @param step_dlen Step size for period changes when needed
+// @param lreg_offset Linear regression offset for calculation
+// @param inv Period behavior over time: true=Increase, false=Decrease after each MA/regression cross reset
+// @param sp *Start Point*: Reset start point ➙ true=Base Period, false=Extreme Values. When increasing periods over time:
+//            - Starting from extremes: In increasing mode of len is resetted to min_dlen and go through extremes conversely if decreasing going from extremes through min_dlen
+//            - Starting from base: reset always to len and increment/decrement from there
+// @param min_bars Minimum bars required to confirm a trend
+// @param use_reg Use linear regression for trend confirmation (ignored for SuperTrend MA type)
+// @param cross_in_trend Cross validation mode: true=Only valid during established trends, false=Always valid. If enabled, only crosses in trends that have already begun will confirm a reset and consequently affect the signals. If disabled, any cross will be recorded and will always be valid, increasing the dynamism of the period with a consequent change in the recording of signals and in the determination of the trend.
+// @param retestEnabled Enable retest system for signal confirmation
+// @param retestPct Retest zone percentage threshold (e.g., 0.005 = 0.5%)
+// @param minRetests Minimum retest occurrences required for signal generation
+// @param repeatSignals Allow repeated signals on subsequent retests
+// @param entryTrigger Price source for entry signal validation ("High\Low", "Open", "Close", etc.)
+// @param exitTrigger Price source for exit signal validation
+// @param useMomentum Enable momentum-based signal filtering
+// @param aggressiveMom Aggressive momentum mode requiring both simple and percentage momentum
+// @param momentumSimpleBase Base source for simple momentum calculation ("Price" or "MA")
+// @param momentumPctBase Base source for percentage momentum calculation ("Price" or "MA")
+// @param mom_bars Lookback period for momentum calculation
+// @param minMovePct Minimum price movement percentage for momentum validation
+// @param useFastMA Enable fast MA filter layer
+// @param fastMAType MA type for fast filter
+// @param fastMABase Base source for fast MA ("Price" or "MA")
+// @param fastMALen Period for fast MA filter
+// @param useMediumMA Enable medium MA filter layer
+// @param mediumMAType MA type for medium filter
+// @param mediumMABase Base source for medium MA ("Price" or "MA")
+// @param mediumMALen Period for medium MA filter
+// @param useSlowMA Enable slow MA filter layer
+// @param slowMAType MA type for slow filter
+// @param slowMABase Base source for slow MA ("Price" or "MA")
+// @param slowMALen Period for slow MA filter
+// @param usePatterns Enable candlestick pattern confirmation (Inside Bar, Engulfing)
+// @param minBarsBetween Minimum bars between consecutive signals (anti-spam)
+// @param max_bars Maximum bars limit for calculations
+// @param noRepaint Enable non-repainting signals (confirm on bar close)
+// 
+// @returns Tuple containing comprehensive trend analysis and signals
+// - [up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn]
+// > ***up*** - Buy signal (boolean)\
+// > ***dn*** - Sell signal (boolean)\
+// > ***general_dir*** - General MA direction (1=up, -1=down, 0=neutral)\
+// > ***len_x*** - Dynamically adjusted period\
+// > ***ma_reg*** - Linear Regression Average calculated on the selected MA\
+// > ***res_dir*** - Relative direction of the main MA (1=rising, -1=falling)\
+// > ***reg_dir*** - Relative direction of the MA's linear regression (1=rising, -1=falling)\
+// > ***zoneUpper*** - Upper boundary of retest zone\
+// > ***zoneLower*** - Lower boundary of retest zone\ 
+// > ***inZone*** - Price currently within retest zone (boolean)\
+// > ***retestCount*** - Current retest occurrence count\
+// > ***pendingUp*** - Pending buy signal awaiting retest confirmation\
+// > ***pendingDn*** - Pending sell signal awaiting retest confirmation
+export trend_and_signals(ma type=ma.supert, float src=close, float ma_res, int len=200, bool din=true, int min_dlen=2, int max_dlen=750, int step_dlen=1, int lreg_offset=3, bool inv=true, bool sp=true, int min_bars=3, bool use_reg=true, bool cross_in_trend=true, bool retestEnabled=true, series float retestPct=0.005, series int minRetests=1, bool repeatSignals=true, string entryTrigger="High\Low", string exitTrigger="Open", bool useMomentum=true, bool aggressiveMom=false, string momentumSimpleBase="Price", string momentumPctBase="MA", int mom_bars=3, float minMovePct=0.5, bool useFastMA=true, ma fastMAType=ma.ema, string fastMABase="Price", float fastMALen=5, bool useMediumMA=true, ma mediumMAType=ma.ema, string mediumMABase="Price", float mediumMALen=20, bool useSlowMA=true, ma slowMAType=ma.ema, string slowMABase="Price", float slowMALen=60, bool usePatterns=true, int minBarsBetween=6, int max_bars=4999, bool noRepaint=true) =>
+
+    // Setting variables in the function's general scope
+    var int len_x = fix(len, max_bars), var float ma_reg=na, var bool cross=false, var bool rising_reg=false, var bool falling_reg=false
+    var bool up=false, var bool dn=false, var int res_dir=0, var int reg_dir=0, var int general_dir=0
+    var bool cross_up=false, var bool cross_dn=false, var bool cross_up_permitted=false, var bool cross_dn_permitted=false
+    var bool mainUp=false, var bool mainDn=false
+
+    // Persistent Variables for Retest Zones and Pending Signals
+    var int retestCount = 0
+    var bool retestSignal = false
+    var bool inRetestZone = false
+    var bool pendingSignal = false
+    var int pendingDirection = 0
+    var bool pendingUp = false
+    var bool pendingDn = false
+    var bool wasInZone = false
+    var float zoneUpper = na
+    var float zoneLower = na
+    var bool inZone = false
+    var int len_x_tmp = na
+    var int lastSignalBar = na  // For the final condition
+    
+    bool repaintSafe = noRepaint ? barstate.isconfirmed : true
+
+    // Calculate the Linear Regression with dynamic period reset at each cross between the main moving average and its linear regression-based counterpart
+    ma_reg := ta.linreg(ma_res, len_x, lreg_offset) // If an additional clamping is needed --> math.min(math.max(len, 1+lreg_offset), 4999-lreg_offset)
+
+    // Extract cross, rising and falling variables from conditional logic to avoid inconsistencies in series data
+    cross := ta.cross(din?ma_res:na, din?ma_reg:na)
+    rising_reg := ta.rising(use_reg?ma_reg:na, min_bars)
+    falling_reg := ta.falling(use_reg?ma_reg:na, min_bars)
+
+    if din and repaintSafe  // If the period is dynamic, reset it at each cross between MA and regression and follow by increasing/decreasing its value over time based on settings
+        len_x_tmp := cross ? sp ? len : not inv ? max_dlen : min_dlen : not inv ? math.max(min_dlen, len_x-1) : math.min(max_dlen, len_x+1) // Reset at Cross or Adjust at Each Step
+        if bar_index % step_dlen == 0   // Store the calculated period value only when the chosen step/interval is reached (e.g., every 3 bars)
+            len_x := fix(len_x_tmp, max_bars)
+
+    // Check if in an upward or downward trend of at least 'min_bars' duration for the main MA and, if actively used, also for its regression counterpart
+    res_dir := ta.rising(ma_res, min_bars) ? 1 : res_dir
+    res_dir := ta.falling(ma_res, min_bars) ? -1 : res_dir
+    if repaintSafe
+        if use_reg
+            reg_dir := rising_reg ? 1 : reg_dir
+            reg_dir := falling_reg ? -1 : reg_dir
+        else
+            reg_dir := res_dir  // If not using the regression MA, set the same main direction, so only the latter will be considered in subsequent conditions
+        
+        // Check for potential cross up/dn. If a cross is only accepted during an established trend, it will change state at each iteration, otherwise it will remain stored until subsequently set to 'false'
+        cross_up := cross_in_trend or not cross_up ? (src>ma_res or src>ma_res[1]) and src[1]<ma_res[1] : cross_up
+        cross_dn := cross_in_trend or not cross_dn ? (src<ma_res or src<ma_res[1]) and src[1]>ma_res[1] : cross_dn
+
+
+        // ** RETEST AREA **
+
+        // Determine up/dn signals and general direction based on respective crosses and relative directions.
+        // NOTE: * The Super Trend-based Moving Average doesn't take in account directions, only crosses.
+        up := cross_up and ((res_dir>0 and reg_dir>0) or type==ma.supert)
+        dn := cross_dn and ((res_dir<0 and reg_dir<0) or type==ma.supert)
+        general_dir := up ? 1 : dn ? -1 : general_dir
+        mainUp := up    // * Store the main signals
+        mainDn := dn    // *
+
+        // Activate pending when original conditions occur. After calculating original up and dn and having them stored, REPLACE the final assignments
+        if up and not pendingUp
+            pendingUp := true
+            pendingDn := false
+            retestCount := 0
+            up := false  // Immediate signal reset
+            
+        if dn and not pendingDn  
+            pendingDn := true
+            pendingUp := false  
+            retestCount := 0
+            dn := false  // Immediate signal reset
+
+    // Final signal confirmation: The initial trend is confirmed first (not for SuperTrend which by nature has long horizontal movements) momentum can be used to
+    //                            cut false signals at trend end combined with the fast MA filter, which can also be used separately as additional trend confirmation
+    //                            with the multi-level filter (fast-medium-slow) for confirmation across multiple periods.
+    // === HYBRID MOMENTUM === -->
+
+    // Configurable Bases
+    float momSimpleSrc = isPriceBase(momentumSimpleBase) ? src : ma_res
+    float momPctSrc = isPriceBase(momentumPctBase) ? src : ma_res
+    float fastMASrc = isPriceBase(fastMABase) ? src : ma_res
+    float mediumMASrc = isPriceBase(mediumMABase) ? src : ma_res
+    float slowMASrc = isPriceBase(slowMABase) ? src : ma_res
+
+    // Simple Momentum
+    bool falling_mom = ta.falling(momSimpleSrc, mom_bars)
+    bool momentumSimple = ta.rising(momSimpleSrc, mom_bars) and pendingUp or falling_mom and pendingDn
+
+    if repaintSafe
+        // % Threshold Momentum
+        float movePct = math.abs(momPctSrc - momPctSrc[mom_bars]) / math.max(zd(momPctSrc[mom_bars], momPctSrc), 0.0001)
+        bool momentumPct = movePct >= minMovePct
+
+        bool momentumConfirmed = aggressiveMom ? momentumSimple and momentumPct : momentumSimple or momentumPct
+
+        // === MULTILEVEL FILTER === -->
+        // Fast MA Filter
+        float fastMA = ma(fastMAType, fastMASrc, fastMALen)
+        bool fastMAConfirmed = (fastMA > ma_res and pendingUp) or (fastMA < ma_res and pendingDn)
+        // <-- === HYBRID MOMENTUM ===
+
+        // Medium MA Filter  
+        float mediumMA = ma(mediumMAType, mediumMASrc, mediumMALen)
+        bool mediumMAConfirmed = (mediumMA > ma_res and pendingUp) or (mediumMA < ma_res and pendingDn)
+
+        // Slow MA Filter (trend direction)
+        float slowMA = ma(slowMAType, slowMASrc, slowMALen)
+        bool slowMAConfirmed = (slowMA > ma_res and pendingUp) or (slowMA < ma_res and pendingDn)
+        // <-- === MULTILEVEL FILTER ===
+
+        // === PATTERNS FILTER ===
+        // INSIDE BAR
+        bool insideBar = high <= high[1] and low >= low[1]
+
+        // ENGULFING BULLISH/BEARISH  
+        bool bullishEngulfing = close > open and close[1] < open[1] and close > high[1] and open < low[1]
+        bool bearishEngulfing = close < open and close[1] > open[1] and close < low[1] and open > high[1]
+        // === PATTERNS FILTER ===
+
+        // === FINAL CONDITION ===
+        bool filtersPassed = true
+        filtersPassed := (not useMomentum or momentumConfirmed) and (not useFastMA or fastMAConfirmed) and (not useFastMA or fastMAConfirmed) and (not useMediumMA or mediumMAConfirmed) and (not useSlowMA or slowMAConfirmed) and (na(lastSignalBar) or (bar_index - lastSignalBar >= minBarsBetween)) and (not usePatterns or (insideBar or bullishEngulfing or bearishEngulfing))
+
+        // If retests are active, check if they have had enough occurrences according to parameter settings to confirm the signals
+        if retestEnabled
+            
+            // Retest counting per pending signals
+            if pendingUp or pendingDn
+
+                // Retrieve Trigger Prices
+                float entryPrice = getTriggerPrice(entryTrigger, pendingUp?1:-1)
+                float exitPrice = getTriggerPrice(exitTrigger, pendingUp?1:-1)
+
+                // EXTENDED FUNCTION -->
+                zoneUpper := ma_res * (1 + retestPct)
+                zoneLower := ma_res * (1 - retestPct)
+                inZone := (entryPrice >= zoneLower and entryPrice <= zoneUpper)
+
+                // Increment only when entering the zone
+                if inZone and not wasInZone
+                    retestCount := (exitPrice < zoneLower or exitPrice > zoneUpper) ? retestCount + 1 : retestCount
+                
+                wasInZone := inZone
+                // <-- EXTENDED FUNCTION
+
+                // Signal confirmation after N retests
+                if retestCount >= minRetests and filtersPassed
+                    up := pendingUp
+                    dn := pendingDn
+                    lastSignalBar := bar_index
+                    // Reset
+                    if not repeatSignals
+                        pendingUp := false
+                        pendingDn := false
+                    retestCount := 0
+        else if (mainUp or mainDn) and filtersPassed    // If retest not enabled, up and dn remain the original ones
+            up := pendingUp
+            dn := pendingDn
+            lastSignalBar := bar_index
+
+        // Reset to 'false' the crossing up/dn states if a signal was found, to move on to detecting the next one
+        if not cross_in_trend
+            cross_up := up ? false : cross_up
+            cross_dn := dn ? false : cross_dn
+
+    [up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn]
+
+// @function ***Trend e Segnali (con Oggetto) - Overload***
+export trend_and_signals(trend_and_signals obj, ma type=ma.supert, float src=close, int len=200, float factor=2.0, int fix=3, float ma_res, bool din=true, int min_dlen=2, int max_dlen=750, int step_dlen=1, int lreg_offset=3, bool inv=true, bool sp=true, int min_bars=3, bool use_reg=true, bool cross_in_trend=true, bool retestEnabled=true, series float retestPct=0.005, series int minRetests=1, bool repeatSignals=true, string entryTrigger="High\Low", string exitTrigger="Open", bool useMomentum=true, bool aggressiveMom=false, string momentumSimpleBase="Price", string momentumPctBase="MA", int mom_bars=3, float minMovePct=0.5, bool useFastMA=true, ma fastMAType=ma.ema, string fastMABase="Price", float fastMALen=5, bool useMediumMA=true, ma mediumMAType=ma.ema, string mediumMABase="Price", float mediumMALen=50, bool useSlowMA=true, ma slowMAType=ma.ema, string slowMABase="Price", float slowMALen=200, bool usePatterns=true, int minBarsBetween=6, int max_bars=4999, bool noRepaint=true) =>
+    var ma_vars ma_obj = ma_vars.new(type, src, len, factor, fix, max_bars, ma_res)
+    obj_tmp = not na(obj) ? obj : trend_and_signals.new(ma_obj, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+    [up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn] = trend_and_signals(type, src, ma_res, len, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+    obj_tmp.up := up, obj_tmp.dn := dn, obj_tmp.general_dir := general_dir, obj_tmp.len_x := len_x, obj_tmp.ma_reg := ma_reg, obj_tmp.res_dir := res_dir, obj_tmp.reg_dir := reg_dir
+    obj_tmp
+
+// @function ***MA + Trend and Signals***
+// - A function that calculates a Moving Average selected from the 'ma' function rotator and calculates its Trend and Signals with the 'trend_and_signals' function based on logics related
+// to the cross of the MA's Linear Regression with itself where the dynamicized Period resets over time which will decrease or increase in unit form at each bar
+// based on the chosen 'inv' parameter and the restart point 'sp'. Different parameters can be set to perform the calculation and also disable the dynamicization
+// of the period.
+// @param type The MA type enum reference
+// @param src The Source that will be used to determine the Cross. It can be the same as the Moving Average or another. Examples: close, open, high, low, ...
+// @param len The Moving Average Period that will be used as initial or reset period to calculate the dynamic one when required
+// @param fix If >0 enables error correction attempts according to chosen number. 0-Disabled; 1-Only Series errors (and period resizing); 2-Only absent results (na or 0); 3-All
+// @param din If Active the period will be dynamicized
+// @param min_dlen Minimum Period allowed
+// @param max_dlen Maximum Period allowed
+// @param step_dlen Step at which to change the Period if Necessary
+// @param lreg_offset Offset of the Linear Regression
+// @param inv If You Want to Increase (true) or Decrease (false) the Period over time (in Bars) starting from its reset that occurs at each cross between the ma and its linear regression
+// @param sp *Start Point*: The restart point of the period at each cross between the ma and its regression. false -> "Chosen Extremes"; true -> "Initial Period". If increasing the period over time and restarting from extremes, it will restart from the minimum allowed period, conversely if decreasing. If choosing to restart from the Initial Period at each reset this will be set and will increase or decrease over time according to the chosen option.
+// @param min_bars Minimum number of bars to accept a trend
+// @param use_reg If active the linear regression will also be used to calculate the trend (No effect if using the 'Super Trend' average)
+// @param cross_in_trend If active only crosses in already started trends will confirm a reset and consequently influence the signals, if disabled, any cross will be recorded and always valid, increasing the dynamism of the period with consequent change in the recording of signals and in the determination of the trend.
+// @param retestEnabled Enable retest system for signal confirmation
+// @param retestPct Retest zone percentage threshold (e.g., 0.005 = 0.5%)
+// @param minRetests Minimum retest occurrences required for signal generation
+// @param repeatSignals Allow repeated signals on subsequent retests
+// @param entryTrigger Price source for entry signal validation ("High\Low", "Open", "Close", etc.)
+// @param exitTrigger Price source for exit signal validation
+// @param useMomentum Enable momentum-based signal filtering
+// @param aggressiveMom Aggressive momentum mode requiring both simple and percentage momentum
+// @param momentumSimpleBase Base source for simple momentum calculation ("Price" or "MA")
+// @param momentumPctBase Base source for percentage momentum calculation ("Price" or "MA")
+// @param mom_bars Lookback period for momentum calculation
+// @param minMovePct Minimum price movement percentage for momentum validation
+// @param useFastMA Enable fast MA filter layer
+// @param fastMAType MA type for fast filter
+// @param fastMABase Base source for fast MA ("Price" or "MA")
+// @param fastMALen Period for fast MA filter
+// @param useMediumMA Enable medium MA filter layer
+// @param mediumMAType MA type for medium filter
+// @param mediumMABase Base source for medium MA ("Price" or "MA")
+// @param mediumMALen Period for medium MA filter
+// @param useSlowMA Enable slow MA filter layer
+// @param slowMAType MA type for slow filter
+// @param slowMABase Base source for slow MA ("Price" or "MA")
+// @param slowMALen Period for slow MA filter
+// @param usePatterns Enable candlestick pattern confirmation (Inside Bar, Engulfing)
+// @param minBarsBetween Minimum bars between consecutive signals (anti-spam)
+// @param max_bars Maximum bars limit for calculations
+// @param noRepaint Enable non-repainting signals (confirm on bar close)
+// RESULTS
+// @returns A Tuple containing comprehensive trend analysis and signals including\
+// UP/DN Signals, MA's General Direction, recalculated (Dynamic) Period, MA's Linear Regression\
+// and the Relative Directions of the MA and its Linear Regression
+// - [ma_res, up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn]
+// > ***ma_res*** The Moving Average on which Trend and Signals were calculated (float)\
+// > ***up*** - UP Signal\
+// > ***dn*** - Down Signal\
+// > ***general_dir*** - General MA Direction (1=up, -1=down, 0=neutral)\
+// > ***len_dyn*** - Dynamically adjusted Period\
+// > ***ma_reg*** - Linear Regression Average calculated on the selected MA\
+// > ***res_dir*** - Relative Direction of the Chosen MA (1=rising, -1=falling)\
+// > ***reg_dir*** - Relative Direction of the MA's Linear Regression (1=rising, -1=falling)\
+// > ***zoneUpper*** - Upper boundary of retest zone\
+// > ***zoneLower*** - Lower boundary of retest zone\ 
+// > ***inZone*** - Price currently within retest zone (boolean)\
+// > ***retestCount*** - Current retest occurrence count\
+// > ***pendingUp*** - Pending buy signal awaiting retest confirmation\
+// > ***pendingDn*** - Pending sell signal awaiting retest confirmation
+export ma_trs(ma type, float src, float len, float factor=2.0, int fix=3, bool din=true, int min_dlen=2, int max_dlen=750, int step_dlen=1, int lreg_offset=3, bool inv=true, bool sp=true, int min_bars=3, bool use_reg=true, bool cross_in_trend=true, bool retestEnabled=true, series float retestPct=0.01, series int minRetests=2, bool repeatSignals=true, string entryTrigger="High\Low", string exitTrigger="Open", bool useMomentum=true, bool aggressiveMom=false, string momentumSimpleBase="Price", string momentumPctBase="MA", int mom_bars=3, float minMovePct=0.5, bool useFastMA=true, ma fastMAType=ma.ema, string fastMABase="Price", float fastMALen=5, bool useMediumMA=true, ma mediumMAType=ma.ema, string mediumMABase="Price", float mediumMALen=50, bool useSlowMA=true, ma slowMAType=ma.ema, string slowMABase="Price", float slowMALen=200, bool usePatterns=true, int minBarsBetween=6, int max_bars=4999, bool noRepaint=true) =>
+    
+    var float len_x = len, var float ma_res=na
+    
+    ma_res := ma(type, src, len_x, factor, fix, max_bars)
+    [up, dn, general_dir, len_dyn, ma_rg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn] = trend_and_signals(type, src, ma_res, int(len), din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+    len_x := len_dyn
+
+    [ma_res, up, dn, general_dir, len_dyn, ma_rg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn]
+
+// @function ***MA + Trend and Signals (with Object) - Overload***
+export ma_trs(trend_and_signals obj, ma type, float src, float len, float factor=2.0, int fix=3, bool din=true, int min_dlen=2, int max_dlen=750, int step_dlen=1, int lreg_offset=3, bool inv=true, bool sp=true, int min_bars=3, bool use_reg=true, bool cross_in_trend=true, bool retestEnabled=true, series float retestPct=0.01, series int minRetests=2, bool repeatSignals=true, string entryTrigger="High\Low", string exitTrigger="Open", bool useMomentum=true, bool aggressiveMom=false, string momentumSimpleBase="Price", string momentumPctBase="MA", int mom_bars=3, float minMovePct=0.5, bool useFastMA=true, ma fastMAType=ma.ema, string fastMABase="Price", float fastMALen=5, bool useMediumMA=true, ma mediumMAType=ma.ema, string mediumMABase="Price", float mediumMALen=50, bool useSlowMA=true, ma slowMAType=ma.ema, string slowMABase="Price", float slowMALen=200, bool usePatterns=true, int minBarsBetween=6, int max_bars=4999, bool noRepaint=true) =>
+    var ma_vars ma_obj = ma_vars.new(type, src, len, factor, fix, max_bars)
+    _obj = not na(obj) ? obj : trend_and_signals.new(ma_obj, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+    [ma_res, up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn] = ma_trs(type, src, len, factor, fix, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+    _obj.ma.ma_res := ma_res
+    _obj.up := up, _obj.dn := dn, _obj.general_dir := general_dir, _obj.len_x := len_x, _obj.ma_reg := ma_reg, _obj.res_dir := res_dir, _obj.reg_dir := reg_dir
+    _obj
+
+// 
+//////////////////////////////////////////////////////////////////////////////////
+//      <- MA Rotator, Trend and Signal Calculation with Linear Regression      //
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// *********************************************************
+// ***  Profitability Calculations and Statistics Table  ***
+// *********************************************************
+
+// HELPER METHODS FOR ARRAY CONTROL AND 'SAFE' OPERATIONS
+export method clean(float []arr, int limit=100000) =>
+    var int lim = math.min(limit, 100000)
+    if arr.size() >= lim
+        arr.shift()
+    arr
+
+// To use it in the place of the built-in method one has to use the param limit. In this form, it can also be used without inserting val nor limit and in this case a 0.0 val will be pushed
+// Example: historicalWinRates.push(currentWinRate, 100)
+// 
+export method push(float []arr, float val=0.0, int limit=100000) =>
+    arr.clean(limit)
+    arr.push(val)
+
+// FORMATTING HELPER FUNCTIONS
+formatSLTP(float SLPrice, float TPPrice, dir=1, bool convert=false) =>
+    float div = (convert?100.0:1.0)
+    if dir>=0
+        str.tostring(close * (1 - SLPrice/div), format.mintick)+"/"+str.tostring(close * (1 + TPPrice/div), format.mintick) // LONG
+    else
+        str.tostring(close * (1 + SLPrice/div), format.mintick)+"/"+str.tostring(close * (1 - TPPrice/div), format.mintick) // SHORT
+
+// ______ CONVERT RR TO READABLE STRING FORMAT + "X:Y"
+// 
+// EXAMPLES:
+// rr = 2.5 → "Good 1:2.5" (Risk:Reward)
+// rr = 0.5 → "Poor 2:1"   (Risk:Reward)
+// 
+formatRRHuman(float rr, bool showDetails=false, bool round=false) =>
+
+    // rr = target/risk (mathematical calculation)
+    // For Risk:Reward visualization, invert if necessary
+    
+    string ratioText = ""
+    string description = ""
+    
+    // ALWAYS Risk:Reward in visualization
+    float rrr = round ? math.round(rr) : rr
+    if rr >= 1.0
+        ratioText := "1:" + str.tostring(rrr, "#.##")
+    else
+        ratioText := str.tostring(1.0 / rrr, "#.##") + ":1"
+    
+    // Quality judgment BASED ON CALCULATED RR (target/risk)
+    if rr >= 3.0
+        description := "Excellent"
+    else if rr >= 2.0  
+        description := "Good"
+    else if rr >= 1.2
+        description := "Moderate"
+    else
+        description := "Poor"
+    
+    // Option for exact values
+    if showDetails
+        float exactTP = rr * 1.0  // Replace with actual TP
+        float exactSL = 1.0       // Replace with actual SL
+        description + " " + ratioText + " (" + str.tostring(exactTP, "#.#") + "%/" + str.tostring(exactSL, "#.#") + "%)"
+    else
+        description + " (" + ratioText + ")"
+
+// ______ CONVERT RR TO COLOR
+getRRColor(rr) =>
+    rr >= 3.0 ? color.green : rr >= 2.0 ? color.orange : color.red
+
+// FUNCTION FOR OPTIMAL AUTO-RR WITH 3 METHODS (Linear - Weighted - Median)
+getOptimalRR(arrayProfits, arrayLosses, rrCalculation, decayFactor) =>
+    float optimalRR = 2.0
+    float conservativeTP = 2.0
+    float conservativeSL = 1.0
+    
+    int size = array.size(arrayProfits)
+    if size > 0 and arrayLosses.size() > 0
+        float avgProfitRR = 0.0
+        float avgLossRR = 0.0
+        float totalWeightRR = 0.0
+        
+        if rrCalculation == "Semplice"
+            // SIMPLE AVERAGE
+            for i = 0 to size - 1
+                avgProfitRR += array.get(arrayProfits, i)
+                avgLossRR += array.get(arrayLosses, i)
+            avgProfitRR := avgProfitRR / size
+            avgLossRR := avgLossRR / size
+            log.info("SEMPLICE")
+            
+        else if rrCalculation == "Weighted"
+            // WEIGHTED AVERAGE WITH EXPONENTIAL DECAY
+            for i = 0 to size - 1
+                // float weight = i + 1                             // Increasing weight
+                // float weight = math.pow(0.9, size - 1 - i)       // Exponential decay - More weight to recent ones
+                float weight = math.pow(decayFactor, size - 1 - i)  // Exponential decay (with decayFactor) - More weight to recent ones
+                avgProfitRR += array.get(arrayProfits, i) * weight
+                avgLossRR += array.get(arrayLosses, i) * weight
+                totalWeightRR += weight
+            avgProfitRR := avgProfitRR / zd(totalWeightRR)
+            avgLossRR := avgLossRR / zd(totalWeightRR)
+            log.info("Weighted")
+            
+        else if rrCalculation == "Mediana Robusta"
+            // MEDIAN - more robust to outliers
+            tempProfits = array.new<float>()
+            tempLosses = array.new<float>()
+            
+            for i = 0 to size - 1
+                array.push(tempProfits, array.get(arrayProfits, i))
+                array.push(tempLosses, array.get(arrayLosses, i))
+            
+            array.sort(tempProfits)
+            array.sort(tempLosses)
+            
+            int mid = size / 2
+            if size % 2 == 0
+                avgProfitRR := (array.get(tempProfits, mid - 1) + array.get(tempProfits, mid)) / 2
+                avgLossRR := (array.get(tempLosses, mid - 1) + array.get(tempLosses, mid)) / 2
+            else
+                avgProfitRR := array.get(tempProfits, mid)
+                avgLossRR := array.get(tempLosses, mid)
+            log.info("MEDIANA")
+        
+        // FINAL CALCULATION
+        if avgLossRR > 0
+            optimalRR := math.max(1.0, math.min(5.0, avgProfitRR / avgLossRR))
+            conservativeTP := math.max(0.5, math.min(10.0, avgProfitRR * 0.7))
+            conservativeSL := math.max(0.5, math.min(5.0, avgLossRR * 1.3))
+    
+    [optimalRR, conservativeTP, conservativeSL]
+
+// AUTO-RR Multi-Metrics (Find Optimal RR taking into account the results of all combined metrics)
+getMultiObjectiveRR(arrayProfits, arrayLosses, winRates, maxDDs, profitFactors, rrCalculation, decayFactor) =>
+    float optimalRR = 2.0
+    float optimalTP = 2.0  
+    float optimalSL = 1.0
+    
+    int size = array.size(arrayProfits)
+    if size >= 0    // >= 3
+        // CALCULATE BASE RR (use method selected from input)
+        [baseRR, baseTP, baseSL] = getOptimalRR(arrayProfits, arrayLosses, rrCalculation, decayFactor)
+        
+        // CALCULATE CURRENT METRICS
+        float currentWinRate = array.avg(winRates)
+        float currentMaxDD = array.avg(maxDDs)
+        float currentPF = array.avg(profitFactors)
+        
+        // CALCULATE OVERALL SCORE (0-100) FOR EACH METRIC
+        float rrScore = math.min(100, baseRR * 25)                  // RR 4:1 = 100 points
+        float wrScore = math.min(100, currentWinRate * 1.5)         // WR 66% = ~100 points
+        float ddScore = math.max(0, 100 - (currentMaxDD * 5))       // DD 20% = 0 points
+        float pfScore = math.min(100, currentPF * 25)               // PF 4 = 100 points
+
+        // Final Score: COMBINE STRATEGIC WEIGHTS - MODIFIABLE VIA INPUT
+        float totalScore = (rrScore * 0.35) + (wrScore * 0.25) + (ddScore * 0.25) + (pfScore * 0.15)
+        
+        // RULE PARAMETERS BASED ON OVERALL PERFORMANCE
+        if totalScore > 75                                          // EXCELLENT PERFORMANCE
+            optimalRR := math.min(4.5, baseRR * 1.15)                   // Slightly increase RR
+            optimalTP := baseTP * 0.85                                  // More conservative TP
+            optimalSL := baseSL * 1.15                                  // Wider SL for stability
+        else if totalScore > 60                                     // GOOD PERFORMANCE
+            optimalRR := baseRR
+            optimalTP := baseTP  
+            optimalSL := baseSL
+        else if totalScore > 40                                     // SUFFICIENT PERFORMANCE
+            optimalRR := math.max(1.2, baseRR * 0.9)                    // Reduce risk
+            optimalTP := baseTP * 1.1                                   // More aggressive TP
+            optimalSL := baseSL * 0.9                                   // Tighter SL
+        else                                                        // POOR PERFORMANCE
+            optimalRR := math.max(1.0, baseRR * 0.7)                    // Maximize risk reduction
+            optimalTP := baseTP * 1.25                                  // Much more aggressive TP
+            optimalSL := baseSL * 0.8                                   // Much tighter SL
+    
+    [optimalRR, optimalTP, optimalSL]
+
+// @type - ***Statistics Object*** - An Object containing Auto-RR parameters and display settings to store and pass them recursively in the stats() function, designed especialy for modes like "Show Suggested" (additional result could be stored if needed)
+// @field autoLongTP Auto-calculated Long Take Profit percentage
+// @field autoLongSL Auto-calculated Long Stop Loss percentage  
+// @field autoShortTP Auto-calculated Short Take Profit percentage
+// @field autoShortSL Auto-calculated Short Stop Loss percentage
+// @field longRR Calculated Long Risk/Reward ratio
+// @field shortRR Calculated Short Risk/Reward ratio
+// @field show_suggested Display suggested values in table (boolean)
+export type stats
+    float autoLongTP
+    float autoLongSL
+    float autoShortTP
+    float autoShortSL
+    float longRR
+    float shortRR
+    bool show_suggested
+
+// @function ***Advanced Performance Statistics and Auto-RR System***
+// - Comprehensive function that tracks trading performance, calculates real-time statistics,\
+//   implements dynamic Auto-RR optimization, and displays professional performance table\
+//   with adaptive suggestions based on selected strategy mode.
+//
+// @param obj stats object for storing and returning calculated parameters
+// @param signal Current trading signal (-1=short, 0=neutral, 1=long)
+// @param show_table Display performance table (boolean)
+// @param openingMode Entry strategy: "First only", "Only in Drawdown", "All"
+// @param useOCO Close opposite positions on signal (boolean)
+// @param longTargetPct Manual Long Take Profit percentage
+// @param longRiskPct Manual Long Stop Loss percentage
+// @param shortTargetPct Manual Short Take Profit percentage  
+// @param shortRiskPct Manual Short Stop Loss percentage
+// @param rrMode Auto-RR mode: "Off", "Show Suggestions", "Auto apply"
+// @param rrCalculation RR calculation method: "Simple", "Weighted", "Robust Median"
+// @param decayFactor Weighted decay factor for recent data emphasis (0.5-0.95)
+// @param optimizationMode Optimization approach: "RR Base", "Multi-Metrics"
+// @param exitPriceMode Exit price selection: "Conservative", "Optimistic"
+// @param showRoundedRR Show rounded RR values
+// @param showDetails Show extensive details including realtime SL/TP and a more comprensive RR format
+// @param showTable Master switch for entire performance table display
+// @param tableColor Table Color
+// @param tableTransp Table Transparency
+// @param granularity Performance/quality balance (0=speed, 100=quality)
+//
+// @returns Tuple with comprehensive performance metrics and trading state\
+// \
+// **[winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort]**
+//
+// > **winRate** - Win rate percentage\
+// > **avgProfit** - Average winning trade percentage\
+// > **avgLoss** - Average losing trade percentage\
+// > **profitFactor** - Profit factor ratio\
+// > **totalReturn** - Total return percentage\
+// > **maxDrawdown** - Maximum drawdown percentage\
+// > **consecutiveWins** - Current consecutive wins count\
+// > **consecutiveLosses** - Current consecutive losses count\
+// > **longRR** - Long Risk/Reward ratio\
+// > **shortRR** - Short Risk/Reward ratio\
+// > **longTP** - Long Take Profit price\
+// > **shortTP** - Short Take Profit price\
+// > **longSL** - Long Stop Loss price\
+// > **shortSL** - Short Stop Loss price\
+// > **openLong** - Long opening signal\
+// > **openShort** - Short opening signal\  
+// > **closeLong** - Long closing signal\
+// > **closeShort** - Short closing signal\
+// > **hasLong** - Long position active\
+// > **hasShort** - Short position active
+export stats(stats obj, int signal=0, bool show_table=true, string openingMode="Only in Drawdown", bool useOCO=true, float longTargetPct=2.0, float longRiskPct=1.0, float shortTargetPct=2.0, float shortRiskPct=1.0, string rrMode="Auto apply", string rrCalculation="Weighted", float decayFactor=0.9, string optimizationMode="Multi-Metrics", string exitPriceMode="Conservative", bool showRoundedRR=false, bool showDetails=true, color tableColor=color.white, float tableTransp=30.0, float granularity=50.0) =>
+
+    // STATE
+    var bool hasLong = false
+    var bool hasShort = false
+    var float longEntry = na
+    var float shortEntry = na
+    // Vars for exit and P/L %
+    var float exitPrice = 0
+    var float plPct = 0
+    // Performance table
+    var int totalTrades = 0
+    var int winningTrades = 0
+    var float totalProfit = 0.0
+    var float totalLoss = 0.0
+    var float largestWin = 0.0
+    var float largestLoss = 0.0
+    var int consecutiveWins = 0
+    var int consecutiveLosses = 0
+    var float maxDrawdown = 0.0
+    var float currentEquity = 10000.0  // Initial equity
+    var float peakEquity = 10000.0
+    // AUTO-RR
+    // ______ TRACK REAL PRICE MOVEMENTS (independent from TP/SL)
+    var array<float> longMaxProfits = array.new<float>()
+    var array<float> longMaxLosses = array.new<float>()
+    var array<float> shortMaxProfits = array.new<float>()
+    var array<float> shortMaxLosses = array.new<float>()
+    // ______ Historical Variables
+    var array<float> historicalWinRates = array.new<float>()
+    var array<float> historicalMaxDDs = array.new<float>() 
+    var array<float> historicalProfitFactors = array.new<float>()
+    // ______ Active Positions
+    var array<float> activeLongEntries = array.new<float>()
+    var array<float> activeShortEntries = array.new<float>()
+    // CREATE PERFORMANCE TABLE
+    var table perfTable = table.new(position.top_right, 2, 22, bgcolor=color.new(tableColor, tableTransp), border_width=1)
+
+    // VARIABLES FOR OPTIMAL AUTO RR PARAMETERS
+    var float longRR=0.0, var float autoLongTP=0.0, var float autoLongSL=0.0, var float shortRR=0.0, var float autoShortTP=0.0, var float autoShortSL=0.0
+
+    // State assignment from real-time main signals
+    bool long = signal>0
+    bool short = signal<0
+    bool active_ord = signal!=0
+
+    // GRANULARITY -->
+    // STATE VARIABLES
+    var float lastPrice = close
+    var int lastUpdateBar = bar_index
+    var int lastLongCount = 0
+    var int lastShortCount = 0
+
+    // DYNAMIC THRESHOLD CALCULATION
+    float priceThreshold = atr(14) * (granularity / 100.0) * 0.1  // 10% of scaled ATR
+    bool maxQuality = granularity == 100
+    bool maxSpeed = granularity == 0
+
+    // UPDATE CONDITIONS - ONLY WHEN NECESSARY (Useful to limit Arrays, Resources, etc...)
+    bool priceMoved = math.abs(close - lastPrice) / lastPrice >= priceThreshold
+    bool ordersChanged = (array.size(activeLongEntries) != lastLongCount) or (array.size(activeShortEntries) != lastShortCount)
+    bool newBar = bar_index != lastUpdateBar
+
+    // UPDATE LOGIC
+    bool update = maxQuality or (maxSpeed and ordersChanged) or (not maxSpeed and not maxQuality and (priceMoved or ordersChanged)) or newBar
+    // <-- GRANULARITY
+
+    if update
+        // IN-LINE CLEANUP - EVERY 50 BARS
+        if bar_index % 50 == 0
+            // Lengths based on actual usage
+            activeLongEntries.clean(20)                 // ALWAYS ACTIVE ARRAYS
+            activeShortEntries.clean(20)
+            if rrMode != "Off"                          // ARRAYS ONLY FOR AUTO-RR
+                longMaxProfits.clean(200)
+                longMaxLosses.clean(200)
+                shortMaxProfits.clean(200)
+                shortMaxLosses.clean(200)
+                historicalWinRates.clean(1000)
+                historicalMaxDDs.clean(1000)
+                historicalProfitFactors.clean(1000)
+
+        if rrMode != "Off"
+            // OPTIMAL PARAMETERS CALCULATION WITH SAFE ASSIGNMENT
+            if optimizationMode == "Multi-Metrics"
+                [_longRR, _autoLongTP, _autoLongSL] = getMultiObjectiveRR(longMaxProfits, longMaxLosses, historicalWinRates, historicalMaxDDs, historicalProfitFactors, rrCalculation, decayFactor)
+                [_shortRR, _autoShortTP, _autoShortSL] = getMultiObjectiveRR(shortMaxProfits, shortMaxLosses, historicalWinRates, historicalMaxDDs, historicalProfitFactors, rrCalculation, decayFactor)
+                longRR := _longRR, autoLongTP := _autoLongTP, autoLongSL := _autoLongSL, shortRR := _shortRR, autoShortTP := _autoShortTP, autoShortSL := _autoShortSL
+            else
+                // CALCULATE AND APPLY AUTO-RR
+                [_longRR, _autoLongTP, _autoLongSL] = getOptimalRR(longMaxProfits, longMaxLosses, rrCalculation, decayFactor)
+                [_shortRR, _autoShortTP, _autoShortSL] = getOptimalRR(shortMaxProfits, shortMaxLosses, rrCalculation, decayFactor)
+                longRR := _longRR, autoLongTP := _autoLongTP, autoLongSL := _autoLongSL, shortRR := _shortRR, autoShortTP := _autoShortTP, autoShortSL := _autoShortSL
+
+        // OPENING CONDITIONS
+        bool openLong = false
+        bool openShort = false
+
+        if active_ord
+            if openingMode == "First only"
+                openLong := long and not hasLong
+                openShort := short and not hasShort
+            else if openingMode == "Only in Drawdown"
+                openLong := long and (not hasLong or close < longEntry)
+                openShort := short and (not hasShort or close > shortEntry)
+            else
+                openLong := long
+                openShort := short
+
+            if openLong
+                hasLong := true
+                longEntry := close
+            
+            if openShort
+                hasShort := true  
+                shortEntry := close
+
+        // TP/SL CALCULATION
+        float longTP = na
+        float longSL = na
+        float shortTP = na
+        float shortSL = na
+
+        bool autoRRMode = rrMode == "Auto apply"
+        if hasLong
+            if autoRRMode
+                longTP := longEntry * (1 + autoLongTP/100.0)
+                longSL := longEntry * (1 - autoLongSL/100.0)
+                longRR := autoLongTP / autoLongSL
+            else
+                longTP := longEntry * (1 + longTargetPct)
+                longSL := longEntry * (1 - longRiskPct)
+                longRR := longTargetPct / longRiskPct
+
+        if hasShort
+            if autoRRMode
+                shortTP := shortEntry * (1 - autoShortTP/100.0) 
+                shortSL := shortEntry * (1 + autoShortSL/100.0)
+                shortRR := autoShortTP / autoShortSL
+            else
+                shortTP := shortEntry * (1 - shortTargetPct)
+                shortSL := shortEntry * (1 + shortRiskPct)
+                shortRR := shortTargetPct / shortRiskPct
+
+        // CLOSING CONDITIONS
+        bool closeLongByOCO = useOCO and short and hasLong
+        bool closeShortByOCO = useOCO and long and hasShort
+
+        bool closeLongByTP = hasLong and high >= longTP
+        bool closeLongBySL = hasLong and low <= longSL
+        bool closeShortByTP = hasShort and low <= shortTP  
+        bool closeShortBySL = hasShort and high >= shortSL
+
+        bool closeLong = closeLongByOCO or closeLongByTP or closeLongBySL
+        bool closeShort = closeShortByOCO or closeShortByTP or closeShortBySL
+
+        // MARK FOR UPDATE ONLY AT OPENING/CLOSURE
+        if openLong or openShort or closeLong or closeShort
+            lastLongCount := activeLongEntries.size()
+            lastShortCount := activeShortEntries.size()
+
+        // APPLY CLOSURES
+        if closeLong
+            exitPrice := closeLongByTP ? longTP : closeLongBySL ? longSL : (exitPriceMode=="Conservative" ? low  : close)
+            plPct := ((exitPrice - longEntry) / longEntry) * 100
+            
+            hasLong := false
+            longEntry := na
+
+        if closeShort
+            exitPrice := closeShortByTP ? shortTP : closeShortBySL ? shortSL : (exitPriceMode=="Conservative" ? high : close)
+            plPct := ((shortEntry - exitPrice) / shortEntry) * 100
+            
+            hasShort := false
+            shortEntry := na
+
+        // === PERFORMANCE TABLE - ONLY ESSENTIAL CALCULATIONS ===
+
+        // RECORD PERFORMANCE AT EACH CLOSURE
+        if (closeLong or closeShort)
+            
+            // UPDATE STATISTICS
+            // ______ CALCULATE CURRENT METRICS
+            float currentWinRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0
+            float currentProfitFactor = totalLoss > 0 ? totalProfit / totalLoss : 999
+            
+            // ______ SAVE TO HISTORY WITH LIMIT
+            historicalWinRates.push(currentWinRate, 100)
+            historicalMaxDDs.push(maxDrawdown, 100)
+            historicalProfitFactors.push(currentProfitFactor, 100)
+
+            totalTrades += 1
+            currentEquity := currentEquity * (1 + plPct/100.0)
+            
+            if plPct > 0
+                winningTrades += 1
+                totalProfit += plPct
+                consecutiveWins += 1
+                consecutiveLosses := 0
+                largestWin := math.max(largestWin, plPct)
+            else
+                totalLoss += math.abs(plPct)
+                consecutiveWins := 0
+                consecutiveLosses += 1
+                largestLoss := math.min(largestLoss, plPct)
+            
+            peakEquity := math.max(peakEquity, currentEquity)
+            maxDrawdown := math.max(maxDrawdown, ((peakEquity - currentEquity) / peakEquity) * 100.0)
+
+        // === INDEPENDENT DYNAMIC AUTO-RR ===
+
+        // REGISTER NEW ENTRIES (independent from manual parameters)
+        if openLong
+            activeLongEntries.push(close, 20)
+
+        if openShort
+            activeShortEntries.push(close, 20)
+
+        // UPDATE MAXIMUM MOVEMENTS FOR ALL ACTIVE ENTRIES
+        int sz_activeLong = activeLongEntries.size()
+        int sz_activeShort = activeShortEntries.size()
+
+        if sz_activeLong > 0
+
+            for i = 0 to sz_activeLong - 1
+                float entry = array.get(activeLongEntries, i)
+                float currentProfit = ((high - entry) / entry) * 100
+                float currentLoss = ((entry - low) / entry) * 100
+
+                // Update historical maximums for this trade
+                if array.size(longMaxProfits) > i
+                    float oldProfit = array.get(longMaxProfits, i)
+                    float oldLoss = array.get(longMaxLosses, i)
+                    array.set(longMaxProfits, i, math.max(oldProfit, currentProfit))
+                    array.set(longMaxLosses, i, math.max(oldLoss, currentLoss))
+                else
+                    longMaxProfits.push(currentProfit, 1000)    // PUSH WITH ARRAY LIMIT CONTROL (maximum 1000 elements for safety)
+                    longMaxLosses.push(currentLoss, 1000)
+
+        if sz_activeShort > 0
+            for i = 0 to sz_activeShort - 1
+                float entry = array.get(activeShortEntries, i)
+                float currentProfit = ((entry - low) / entry) * 100
+                float currentLoss = ((high - entry) / entry) * 100
+
+                // ARRAY LIMIT CONTROL (maximum 1000 elements for safety) BEFORE EACH OPERATION
+                shortMaxProfits := shortMaxProfits.clean(1000)
+                shortMaxLosses := shortMaxLosses.clean(1000)
+                
+                if array.size(shortMaxProfits) > i
+                    float oldProfit = array.get(shortMaxProfits, i)
+                    float oldLoss = array.get(shortMaxLosses, i)
+                    array.set(shortMaxProfits, i, math.max(oldProfit, currentProfit))
+                    array.set(shortMaxLosses, i, math.max(oldLoss, currentLoss))
+                else
+                    shortMaxProfits.push(currentProfit, 1000)
+                    shortMaxLosses.push(currentLoss, 1000)
+
+        // REMOVE CLOSED ENTRIES
+        sz_activeLong := activeLongEntries.size()   // Update for safety
+        sz_activeShort := activeShortEntries.size()
+
+        if closeLong and sz_activeLong > 0
+            // First record final data for Auto-RR...
+            float finalProfit = array.get(longMaxProfits, 0)
+            float finalLoss = array.get(longMaxLosses, 0)
+            
+            // ...then remove
+            array.remove(activeLongEntries, 0)
+            array.remove(longMaxProfits, 0)
+            array.remove(longMaxLosses, 0)
+
+        if closeShort and sz_activeShort > 0
+            float finalProfit = array.get(shortMaxProfits, 0)
+            float finalLoss = array.get(shortMaxLosses, 0)
+            
+            array.remove(activeShortEntries, 0)
+            array.remove(shortMaxProfits, 0)
+            array.remove(shortMaxLosses, 0)
+
+        // Other results
+        float winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0
+        float avgProfit = winningTrades > 0 ? (totalProfit / zd(winningTrades)) : 0
+        float avgLoss = (totalTrades - winningTrades) > 0 ? (totalLoss / (totalTrades - winningTrades)) : 0
+        float profitFactor = avgLoss > 0 ? avgProfit / avgLoss : 999
+        float totalReturn = ((currentEquity - 10000) / 10000) * 100
+
+        // Update Table
+        if barstate.islast and show_table
+            
+            // table.cell(perfTable, 0, 0, "=== PERFORMANCE ===", text_color=color.black, bgcolor=color.rgb(59, 170, 255))
+            // table.cell(perfTable, 1, 0, "LIVE", text_color=color.black, bgcolor=color.rgb(59, 170, 255))
+            table.cell(perfTable, 0, 0, "📊 LIVE PERFORMANCE", text_color=color.black, bgcolor=color.rgb(59, 170, 255))
+            table.cell(perfTable, 1, 0, "Real-Time ⏰", text_color=color.black, bgcolor=color.rgb(59, 170, 255))
+
+            table.cell(perfTable, 0, 1, "Total Trades", text_color=color.black)
+            table.cell(perfTable, 1, 1, str.tostring(totalTrades), text_color=color.blue)
+            
+            table.cell(perfTable, 0, 2, "Win Rate", text_color=color.black)
+            table.cell(perfTable, 1, 2, str.tostring(winRate, "#.##") + "%", text_color=winRate > 60 ? color.green : winRate > 40 ? color.orange : color.red)
+            
+            table.cell(perfTable, 0, 3, "Avg Win/Loss", text_color=color.black)
+            table.cell(perfTable, 1, 3, str.tostring(avgProfit, "#.##") + "%/" + str.tostring(avgLoss, "#.##") + "%", text_color=profitFactor > 1 ? color.green : color.red)
+            
+            table.cell(perfTable, 0, 4, "Profit Factor", text_color=color.black)
+            table.cell(perfTable, 1, 4, str.tostring(profitFactor, "#.##"), text_color=profitFactor > 1 ? color.green : color.red)
+            
+            table.cell(perfTable, 0, 5, "Total Return", text_color=color.black)
+            table.cell(perfTable, 1, 5, str.tostring(totalReturn, "#.##") + "%", text_color=totalReturn > 0 ? color.green : color.red)
+            
+            table.cell(perfTable, 0, 6, "Max Drawdown", text_color=color.black)
+            table.cell(perfTable, 1, 6, str.tostring(maxDrawdown, "#.##") + "%", text_color=maxDrawdown < 10 ? color.green : maxDrawdown < 20 ? color.orange : color.red)
+            
+            table.cell(perfTable, 0, 7, "Consecutive", text_color=color.black)
+            table.cell(perfTable, 1, 7, "W:" + str.tostring(consecutiveWins) + " L:" + str.tostring(consecutiveLosses), text_color=consecutiveWins > consecutiveLosses ? color.green : color.red)
+
+            table.cell(perfTable, 0, 8, "⚡ ─── RISK/REWARD ─── ⚡", text_color=color.gray)
+            table.cell(perfTable, 1, 8, "", text_color=color.gray)
+
+            table.cell(perfTable, 0, 9, "RR Long", text_color=color.black)
+            table.cell(perfTable, 1, 9, formatRRHuman(longRR, showDetails, showRoundedRR), text_color=getRRColor(longRR))
+
+            table.cell(perfTable, 0, 10, "RR Short", text_color=color.black)
+            table.cell(perfTable, 1, 10, formatRRHuman(shortRR, showDetails, showRoundedRR), text_color=getRRColor(shortRR))
+
+            string tpSuffix = rrMode == "Auto apply" ? " (Auto)" : rrMode == "Show Suggestions" ? " (Manual)" : " (Manual)"
+            table.cell(perfTable, 0, 11, "Long SL/TP" + tpSuffix, text_color=color.black)
+            table.cell(perfTable, 1, 11, str.tostring(rrMode=="Auto apply"?autoLongSL:longRiskPct*100, "#.#") + "%/" + str.tostring(rrMode=="Auto apply"?autoLongTP:longTargetPct*100, "#.#") + (showDetails?"% ("+formatSLTP(longRiskPct,longTargetPct)+")":""), text_color=color.blue)
+            table.cell(perfTable, 0, 12, "Short SL/TP" + tpSuffix, text_color=color.black)
+            table.cell(perfTable, 1, 12, str.tostring(rrMode=="Auto apply"?autoShortSL:shortRiskPct*100, "#.#") + "%/" + str.tostring(rrMode=="Auto apply"?autoShortTP:shortTargetPct*100, "#.#") + (showDetails?"% ("+formatSLTP(shortRiskPct,shortTargetPct, -1)+")":""), text_color=color.blue)
+
+            // DETERMINE SUFFIXES BASED ON MODE
+            string sgSuffix = rrMode == "Auto apply" ? " (Auto)" : obj.show_suggested ? " (Suggested)" : " (Manual)"
+
+            // ADAPTIVE TABLE - IF IN "Show Suggestions", ADD EXTRA ROW FOR AUTO VALUES
+            if obj.show_suggested
+                table.cell(perfTable, 0, 13, "─── 💡 SUGGESTED VALUES 💡 ───", text_color=color.purple)
+                table.cell(perfTable, 1, 13, "", text_color=color.purple)
+                table.cell(perfTable, 0, 14, "RR Long" + sgSuffix, text_color=color.black)
+                table.cell(perfTable, 1, 14, formatRRHuman(obj.longRR, showDetails, showRoundedRR), text_color=color.purple)
+                table.cell(perfTable, 0, 15, "RR Short" + sgSuffix, text_color=color.black)
+                table.cell(perfTable, 1, 15, formatRRHuman(obj.shortRR, showDetails, showRoundedRR), text_color=color.purple)
+                table.cell(perfTable, 0, 16, "Long SL/TP" + sgSuffix, text_color=color.black)
+                table.cell(perfTable, 1, 16, str.tostring(obj.autoLongSL, "#.#") + "%/" + str.tostring(obj.autoLongTP, "#.#") + (showDetails?"% ("+formatSLTP(autoLongSL,autoLongTP, 1, true)+")":""), text_color=color.purple)
+                table.cell(perfTable, 0, 17, "Short SL/TP" + sgSuffix, text_color=color.black)
+                table.cell(perfTable, 1, 17, str.tostring(obj.autoShortSL, "#.#") + "%/" + str.tostring(obj.autoShortTP, "#.#") + (showDetails?"% ("+formatSLTP(autoShortSL,autoShortTP, -1, true)+")":""), text_color=color.purple)
+
+            table.cell(perfTable, 0, 18, "RR Mode", text_color=color.black)
+            table.cell(perfTable, 1, 18, rrMode=="Auto apply"?"Automatic":"Manual", text_color=color.blue)
+
+            table.cell(perfTable, 0, 19, "Optimization", text_color=color.black)
+            table.cell(perfTable, 1, 19, optimizationMode, text_color=color.purple)
+
+            table.cell(perfTable, 0, 20, "Calc Method", text_color=color.black)
+            table.cell(perfTable, 1, 20, rrCalculation, text_color=color.blue)
+            
+            string quality = winRate > 75 and profitFactor > 1.8 ? "EXCELLENT" : winRate > 60 and profitFactor > 1.3 ? "GOOD" : winRate > 45 ? "MEDIUM" : "POOR"
+            table.cell(perfTable, 0, 21, "Signal Quality", text_color=color.black)
+            table.cell(perfTable, 1, 21, quality, text_color=quality == "EXCELLENT" ? color.green : quality == "GOOD" ? color.lime : quality == "MEDIUM" ? color.orange : color.red)
+
+        obj.autoLongSL := autoLongSL, obj.autoLongTP := autoLongTP, obj.autoShortSL := autoShortSL, obj.autoShortTP := autoShortTP
+
+        [winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort]
+
+// @function ***Advanced Performance Statistics and Auto-RR System (Router with Object)***
+// - Overloaded version of stas a *Simplified Entry Point* that automatically handles object creation and\
+//   provides intelligent mode-based parameter routing to handle hybrid cases scenarios where\
+//   two differnt kind of statistics should be calculated and stored, in this specific case,\
+//   to handle both "Show Suggested" and "Manual" mode and show them separately.\
+//   The stats() function called will tracks trading performance, calculates real-time statistics\
+//   implements dynamic Auto-RR optimization. Calculations based on selected strategy mode\
+//   will be stored and returned as results, also if combining Manual with Suggested ones\
+//   displaying them in a professional adaptive performance table when showed
+// 
+// @param signal Current trading signal (-1=short, 0=neutral, 1=long)
+// @param show_table Display performance table (boolean)
+// @param openingMode Entry strategy: "First only", "Only in Drawdown", "All" 
+// @param useOCO Close opposite positions on signal (boolean)
+// @param longTargetPct Manual Long Take Profit percentage
+// @param longRiskPct Manual Long Stop Loss percentage
+// @param shortTargetPct Manual Short Take Profit percentage
+// @param shortRiskPct Manual Short Stop Loss percentage
+// @param rrMode Auto-RR mode: "Off", "Show Suggestions", "Auto apply"
+// @param rrCalculation RR calculation method: "Simple", "Weighted", "Robust Median"
+// @param decayFactor Weighted decay factor for recent data emphasis (0.5-0.95)
+// @param optimizationMode Optimization approach: "RR Base", "Multi-Metrics"
+// @param exitPriceMode Exit price selection: "Conservative", "Optimistic"
+// @param showRoundedRR Show rounded RR values
+// @param showDetails Show extensive details including realtime SL/TP and a more comprensive RR format
+// @param showTable Master switch for entire performance table display
+// @param tableColor Table Color
+// @param tableTransp Table Transparency
+// @param granularity Performance/quality balance (0=speed, 100=quality)
+// 
+// @returns Same comprehensive Tuple as main stats function, with performance metrics and trading state\
+// \
+// **[winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort]**
+//
+// > **winRate** - Win rate percentage\
+// > **avgProfit** - Average winning trade percentage\
+// > **avgLoss** - Average losing trade percentage\
+// > **profitFactor** - Profit factor ratio\
+// > **totalReturn** - Total return percentage\
+// > **maxDrawdown** - Maximum drawdown percentage\
+// > **consecutiveWins** - Current consecutive wins count\
+// > **consecutiveLosses** - Current consecutive losses count\
+// > **longRR** - Long Risk/Reward ratio\
+// > **shortRR** - Short Risk/Reward ratio\
+// > **longTP** - Long Take Profit price\
+// > **shortTP** - Short Take Profit price\
+// > **longSL** - Long Stop Loss price\
+// > **shortSL** - Short Stop Loss price\
+// > **openLong** - Long opening signal\
+// > **openShort** - Short opening signal\  
+// > **closeLong** - Long closing signal\
+// > **closeShort** - Short closing signal\
+// > **hasLong** - Long position active\
+// > **hasShort** - Short position active
+export stats(int signal=0, bool show_table=true, string openingMode="Only in Drawdown", bool useOCO=true, float longTargetPct=2.0, float longRiskPct=1.0, float shortTargetPct=2.0, float shortRiskPct=1.0, string rrMode="Auto apply", string rrCalculation="Weighted", float decayFactor=0.9, string optimizationMode="Multi-Metrics", string exitPriceMode="Conservative", bool showRoundedRR=false, bool showDetails=true, color tableColor=color.white, float tableTransp=30.0, float granularity=50.0) =>
+    var obj = stats.new()
+    // Calculate statistics and create the table with plots
+    if rrMode == "Show Suggestions"
+        [_winRate, _avgProfit, _avgLoss, _profitFactor, _totalReturn, _maxDrawdown, _consecutiveWins, _consecutiveLosses, _longRR, _shortRR, _longTP, _shortTP, _longSL, _shortSL, _openLong, _openShort, _closeLong, _closeShort, _hasLong, _hasShort] = stats(obj, signal, false, openingMode, useOCO, longTargetPct, longRiskPct, shortTargetPct, shortRiskPct, "Auto apply", rrCalculation, decayFactor, optimizationMode, exitPriceMode, showRoundedRR, showDetails, tableColor, tableTransp, granularity)
+        obj.longRR := _longRR, obj.shortRR := _shortRR, obj.show_suggested := true
+        [winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort] = stats(obj, signal, show_table, openingMode, useOCO, longTargetPct, longRiskPct, shortTargetPct, shortRiskPct, "Off", rrCalculation, decayFactor, optimizationMode, exitPriceMode, showRoundedRR, showDetails, tableColor, tableTransp, granularity)
+    else
+        [winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort] = stats(obj, signal, show_table, openingMode, useOCO, longTargetPct, longRiskPct, shortTargetPct, shortRiskPct, rrMode, rrCalculation, decayFactor, optimizationMode, exitPriceMode, showRoundedRR, showDetails, tableColor, tableTransp, granularity)
+
+
+

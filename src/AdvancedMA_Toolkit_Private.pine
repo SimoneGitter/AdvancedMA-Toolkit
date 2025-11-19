@@ -1,0 +1,178 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Simone_View
+
+//@version=6
+indicator("AdvancedMA-Toolkit", "AMT", overlay=true)
+
+import Simone_View/AdvancedMAToolkit_Private/1 as amt
+
+//////////////////////////////////
+//  *** AdvancedMA Toolkit ***  //
+//////////////////////////////////
+// 
+// **INPUTS**
+// |
+// ├————— Anti-Spam and limits
+var bool noRepaint = input.bool(true, "No Repaint - Confirm on Bar Close", display=display.all-display.status_line, group="⚡ Signals and Bars limits ⚡")
+var int minBarsBetween = input.int(36, "Min Bars between Signals", display=display.all-display.status_line, group="⚡ Signals and Bars limits ⚡", inline="MAIN_00")
+var int max_bars = input.int(4999, "Max Bars Limit", display=display.all-display.status_line, group="⚡ Signals and Bars limits ⚡", inline="MAIN_00", tooltip="- Min Bars between Signals:\n  Minimum bars between consecutive signals\n  Anti-spam protection against signal flooding\n\n- Max Bars Limit:\n  Maximum bars limit for calculations")
+// |
+// ├————— Core logic for MA, Trend and Main Signals
+type = input.enum(amt.ma.supert, "Type of Moving Average", group="📈 Moving Average Settings 🎯", tooltip="Moving Average type selection:\n\nSMA ➙ Simple Moving Average\nEMA ➙ Exponential Moving Average: more responsive giving more importance to recent prices\nRMA ➙ Relative Moving Average: Like EMA but smoother including older data\nWMA ➙ Weighted Moving Average: More weight to recent prices\nVWMA ➙ Volume Weighted Moving Average: Volumes gives a more accurate representation of market sentiment and trends\nDEMA ➙ Double EMA: More effective in consolidated trends. Used to confirm trading signals in volatile markets\nTEMA ➙ Triple EMA: Reduces lag and filters noise\nHMA ➙ Reduced lag, responsive to price changes\nZLEMA ➙  Zero Lag EMA: Provides earlier signals for trend changes\nFRAMA ➙ Adaptive to market volatility conditions\n SuperTrend ➙ Trend-following with dynamic support/resistance\nTMA ➙ Triangular MA: Giving more weight to the middle data points in a period with more lag\nTRIMA ➙ Weighted TMA: Removes random price fluctuations\nT3 ➙ Smooth with minimal lag for clean trends")
+src = input.source(close, "Source", display=display.all-display.status_line, group="📈 Moving Average Settings 🎯", inline="G00") // Keep src dynamic without the 'var' keyword
+var int len = input.int(310, "Period", group="📈 Moving Average Settings 🎯", inline="G00")
+var float factor = input.float(20.0, "Factor", display=display.all-display.status_line, group="📈 Moving Average Settings 🎯", inline="G00")
+var bool din = input.bool(true, "Active", display=display.all-display.status_line, group="Dynamic Period Settings")
+var int min_dlen = input.int(2, "Minimum", display=display.all-display.status_line, group="Dynamic Period Settings", inline="D00")
+var int max_dlen = input.int(750, "Maximum", display=display.all-display.status_line, group="Dynamic Period Settings", inline="D00")
+var int step_dlen = input.int(1, "Step", display=display.all-display.status_line, group="Dynamic Period Settings", inline="D00")
+var int lreg_offset = input.int(3, "Linear Regression Offset", display=display.all-display.status_line, group="Dynamic Period Settings")
+var string inv_str = input.string("Increase", "Effect on the period over time", options=["Decay", "Increase"], display=display.all-display.status_line, group="Dynamic Period Settings", tooltip="Period behavior after each MA/Regression cross:\n\nIncrease ➙ Period grows each bar\nDecay ➙ Period shrinks each bar\n\nCombines with 'Start Point' setting for reset behavior.\n\nExample: Increase + Start Point=Initial Period\n- Reset to base length, then grow each bar")
+var string sp_str = input.string("Initial Period", "Re-Start period at the Reset", options=["Selected Extremes", "Initial Period"], display=display.all-display.status_line, group="Dynamic Period Settings", tooltip="Reset starting point after each cross:\n\nInitial Period ➙ Reset to base length\nSelected Extremes ➙ Reset to min/max\n(based on Increase/Decrease setting)")
+var int min_bars = input.int(3, "Minimum Bars to Validate a Trend", display=display.all-display.status_line, group="Settings for Trend and Signal Identification", tooltip="Minimum bars to confirm trend direction\nHigher = More reliable but slower signals")
+var bool use_reg = input.bool(true, "Use Linear Regression to Identify Trends and Signals", display=display.all-display.status_line, group="Settings for Trend and Signal Identification", tooltip="Use regression for trend confirmation:\n\nOn ➙ MA direction + Regression direction required\nOff ➙ Only MA direction considered (except SuperTrend)")
+var bool cross_in_trend = input.bool(false, "Crosses Valid only in already formed trends", display=display.all-display.status_line, group="Settings for Trend and Signal Identification", tooltip="Cross validation mode:\n\nOnly in trends (true) ➙ Conservative signals, fewer false entries\nAlways valid (false) ➙ More dynamic period, more frequent signals")
+// |
+// ├————— Retest System Inputs
+var bool retestEnabled = input.bool(true, "Enable Retest System", display=display.all-display.status_line, group="Retest Settings", inline="RET_00")
+var bool repeatSignals = input.bool(true, "Repeat signals on each retest", display=display.all-display.status_line, group="Retest Settings", inline="RET_00")
+var float retestPct = input.float(1.7, "Retest Zone %", step=0.1, minval=0, maxval=5, display=display.all-display.status_line, group="Retest Settings", inline="RET_01") / 100.0
+var int minRetests = input.int(1, "Min Retests for Signal", minval=1, maxval=5, display=display.all-display.status_line, group="Retest Settings", inline="RET_01", tooltip="- Retest zone percentage threshold:\n\nDefines the price range around MA for retest validation\nExample: 0.5% = ±0.5% zone around moving average\nSmaller values ➙ tighter entry zones, stricter signals\n\n- Minimum retests required for signal confirmation:\n\nHigher values ➙ More conservative, fewer but higher quality signals\nLower values ➙ More aggressive, earlier entries with less confirmation")
+var string entryTriggerStr = input.string("High/Low", "Entry Trigger", options=["High/Low", "Open", "High", "Low", "Close", "hl2", "hlc3", "ohlc4", "hlcc4"], display=display.all-display.status_line, inline="RET_02")
+var string exitTriggerStr = input.string("Open", "Exit Trigger", options=["High/Low", "Open", "High", "Low", "Close", "hl2", "hlc3", "ohlc4", "hlcc4"], display=display.all-display.status_line, inline="RET_02", tooltip="Zone Area Entry/Exit price trigger selection:\n\nHigh/Low ➙ Uses high for short,\n                    low for long entries\nOpen, High, Close, Low ➙ Uses specified bars\n                                         prices for all entries\nhl2, hlc3, ohlc4, hlcc4 ➙ Average bars prices\n                                       calculations")
+// |
+// ├————— Momentum Settings
+var bool useMomentum = input.bool(true, "Enable Momentum Filter", display=display.all-display.status_line, group="Momentum Settings")
+var bool aggressiveMom = input.bool(false, "Aggressive", display=display.all-display.status_line, group="Momentum Settings", tooltip="Momentum filter aggressiveness:\n\nStandard ➙ Simple OR percentage momentum sufficient\nAggressive ➙ Requires BOTH simple AND percentage momentum\nMore strict signal validation, fewer false entries")
+var string momentumSimpleBase = input.string("MA", "Simple Base", options=["Price", "MA"], display=display.all-display.status_line, group="Momentum Settings", inline="MOM_00")
+var string momentumPctBase = input.string("Price", "% Base", options=["Price", "MA"], display=display.all-display.status_line, group="Momentum Settings", inline="MOM_00")
+var int mom_bars = input.int(3, "Length", display=display.all-display.status_line, group="Momentum Settings", inline="MOM_01")
+var float minMovePct = input.float(0.5, "Min % Amplitude", display=display.all-display.status_line, group="Momentum Settings", inline="MOM_01") / 100.0
+// |
+// ├————— Advanced MA Filters
+var bool useFastMA = input.bool(true, "Use Fast MA Filter ⤵", display=display.all-display.status_line, group="Advanced MA Filters")
+var fastMAType = input.enum(amt.ma.zlema, "MA Type", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_00")
+var string fastMABase = input.string("Price", "MA Base", options=["Price", "MA"], display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_00")
+var int fastMALen = input.int(5, "MA Length", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_00")
+var bool useMediumMA = input.bool(true, "Use Medium MA Filter ⤵", display=display.all-display.status_line, group="Advanced MA Filters")
+var mediumMAType = input.enum(amt.ma.zlema, "MA Type", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_01")
+var string mediumMABase = input.string("MA", "MA Base", options=["Price", "MA"], display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_01")
+var int mediumMALen = input.int(20, "MA Length", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_01")
+var bool useSlowMA = input.bool(true, "Use Slow MA Filter ⤵", display=display.all-display.status_line, group="Advanced MA Filters")
+var slowMAType = input.enum(amt.ma.zlema, "MA Type", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_02")
+var string slowMABase = input.string("MA", "MA Base", options=["Price", "MA"], display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_02")
+var int slowMALen = input.int(60, "MA Length", display=display.all-display.status_line, group="Advanced MA Filters", inline="Fast_02")
+// |
+// ├————— Patterns
+var bool usePatterns = input.bool(true, "Use Patterns Confirmation", display=display.all-display.status_line, group="Patterns", tooltip="Enable candlestick pattern confirmation\nInside Bar & Bullish/Bearish Engulfing patterns")
+// |
+// ├————— Statistics Table
+var string openingMode = input.string("First only", "Opening Mode", options=["First only", "Only in Drawdown", "All"], display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_00")
+var bool useOCO = input.bool(true, "Close at opposite order (OCO)", display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_00")
+// - SEPARATE INPUTS FOR LONG/SHORT
+var float longTargetPct = input.float(1.6, "Long Target %", step=0.1, minval=0.1, maxval=10.0, display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_01") / 100.0
+var float longRiskPct = input.float(5.0, "Long Stop Loss %", step=0.1, minval=0.1, maxval=5.0, display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_01") / 100.0
+var float shortTargetPct = input.float(1.6, "Short Target %", step=0.1, minval=0.1, maxval=10.0, display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_02") / 100.0
+var float shortRiskPct = input.float(5.0, "Short Stop Loss %", step=0.1, minval=0.1, maxval=5.0, display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_02") / 100.0
+// - AUTO-RR MODE
+var string rrMode = input.string("Show Suggestions", "Auto-RR Mode", options=["Off", "Show Suggestions", "Auto apply"], display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_03")
+var string rrCalculation = input.string("Weighted", "Auto-RR Calculation Type", options=["Simple", "Weighted", "Robust Median"], display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_03", tooltip="Auto-RR calculation method:\n\nSimple ➙ Equal weight to all trades\nWeighted ➙ More weight to recent trades\nRobust Median ➙ Resistant to outliers")
+var float decayFactor = input.float(0.6, "Auto-RR Weighted Decay Factor", minval=0.5, maxval=0.95, step=0.05, display=display.all-display.status_line, group="📊 Statistics Table")
+// - CHANGE OPTIMIZATION METHODS
+var string optimizationMode = input.string("Multi-Metrics", "Optimization Mode", options=["RR Base", "Multi-Metrics"], display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_04")
+var string exitPriceMode = input.string("Conservative", "Exit Price Mode", options=["Conservative", "Optimistic"], display=display.all-display.status_line, group="📊 Statistics Table", inline="STA_04", tooltip="- Auto-RR optimization approach:\n\nRR Base ➙ Pure risk/reward ratio optimization\nMulti-Metrics ➙ Combines RR, Win Rate, Drawdown, Profit Factor\nMore balanced and adaptive parameter selection\n\n- Exit price selection strategy:\n\nConservative ➙ Uses worst-case (low for long, high for short)\nOptimistic ➙ Uses close price for better fill assumptions\nAffects performance calculation realism")
+var int granularity = input.int(50, "Granularity (0=Speed, 100=Quality)", minval=0, maxval=100, display=display.all-display.status_line, group="📊 Statistics Table", tooltip="Performance vs Quality balance:\n\n0 ➙ Maximum speed (update only on orders)\n100 ➙ Maximum quality (update every tick)\n50 ➙ Balanced approach\n\nNote: The system is ATR-based")
+// |
+// ├————— Show Graphic Elements
+var bool show_reg = input.bool(true, "Show Linear Regression", display=display.all-display.status_line, group="Visual Settings", inline="VIS_00")
+var bool show_trend = input.bool(true, "Color the Moving Average based on the Trend", display=display.all-display.status_line, group="Visual Settings", inline="VIS_00")
+var bool show_signals = input.bool(true, "Show UP/DN Signals", display=display.all-display.status_line, group="Visual Settings", inline="VIS_01")
+var bool showRetestZones = input.bool(true, "Show Retest Zones", display=display.all-display.status_line, group="Visual Settings", inline="VIS_01")
+var bool showTPSL = input.bool(true, "Show Orders TP/SL", display=display.all-display.status_line, group="Visual Settings", inline="VIS_01")
+var color zoneColorUp = input.color(color.rgb(0, 230, 119, 0), "Zone UP Color", display=display.all-display.status_line, group="Visual Settings", inline="CLR_00")
+var color zoneColorDn = input.color(color.rgb(255, 153, 0, 0), "Zone DN Color", display=display.all-display.status_line, group="Visual Settings", inline="CLR_00")
+var int zoneTransparency = input.int(83, "Zone Transparency", minval=0, maxval=100, display=display.all-display.status_line, group="Visual Settings", inline="CLR_00")
+// - FOR THE STATISTICS TABLE
+var bool showRoundedRR = input.bool(false, "Show Rounded RR Values", display=display.all-display.status_line, group="Visual Settings", inline="VIS_02")
+var bool showDetails = input.bool(true, "Show More Details", display=display.all-display.status_line, group="Visual Settings", inline="VIS_02")
+var bool showTableSignals = input.bool(true, "Show Table Signals", display=display.all-display.status_line, group="Visual Settings", inline="VIS_02", tooltip="- Show Rounded RR Values -\nWill display RR values rounded to the nearest integer.\n\n- Show More Details -\nIt will display extended details for RR and real-time SL/TP levels (not table orders) in price format.\n\n- Show Table Signals -\nIt will display the signals from the table orders, which can be compared with the main signals")
+var bool showTable = input.bool(true, "Show Statistics Table", display=display.all-display.status_line, group="Visual Settings", inline="VIS_03")
+var color tableColor = input.color(color.white, "➙ Color", display=display.all-display.status_line, group="Visual Settings", inline="VIS_03")
+var float tableTransp = input.float(30.0, "➙ Transparency", display=display.all-display.status_line, group="Visual Settings", inline="VIS_03")
+
+// Static conditions from inputs
+var bool inv = inv_str=="Decay" ? false : true
+var bool sp = sp_str=="Initial Period" ? true : false
+var string entryTrigger = entryTriggerStr=="High/Low"?"High\Low":entryTriggerStr
+var string exitTrigger = exitTriggerStr =="High/Low"?"High\Low":exitTriggerStr
+
+// // SOME USAGE EXAMPLES -->
+// // Linear Function 'ma'
+// var int len_x = len, var float ma_res=na
+// ma_res := ma(type, src, len_x)
+
+// // Linear Function 'trend_and_signals'
+// [up, dn, general_dir, len_dyn, ma_rg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn] = trend_and_signals(type, src, ma_res, len, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+
+// // Function with Object 'trend_and_signals'
+// trend_and_signals trs_obj = na // Or it can be initialized with the function itself and then always updated with the function but with preferred parameters
+// trs_obj := trend_and_signals(trs_obj, type, src, ma_res, len, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, minBarsBetween, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+// up = trs_obj.up, dn = trs_obj.dn, general_dir = trs_obj.general_dir, len_dyn = trs_obj.len_x, ma_rg = trs_obj.ma_reg, res_dir = trs_obj.res_dir, reg_dir = trs_obj.reg_dir
+
+// // Update period processed in 'trend_and_signals' to be passed back to 'ma' (for separate functions with or without object)
+// len_x := len_dyn
+// // <-- SOME USAGE EXAMPLES
+
+// Linear function that includes both 'ma' and 'trend_and_signals', len is passed as static parameter used in substitutions, len_x is returned as dynamic
+[ma_res, up, dn, general_dir, len_x, ma_reg, res_dir, reg_dir, zoneUpper, zoneLower, inZone, retestCount, pendingUp, pendingDn] = amt.ma_trs(type, src, len, factor, 2, din, min_dlen, max_dlen, step_dlen, lreg_offset, inv, sp, min_bars, use_reg, cross_in_trend, retestEnabled, retestPct, minRetests, repeatSignals, entryTrigger, exitTrigger, useMomentum, aggressiveMom, momentumSimpleBase, momentumPctBase, mom_bars, minMovePct, useFastMA, fastMAType, fastMABase, fastMALen, useMediumMA, mediumMAType, mediumMABase, mediumMALen, useSlowMA, slowMAType, slowMABase, slowMALen, usePatterns, minBarsBetween, max_bars, noRepaint)
+
+// Repaint ON/OFF: Also applied to VISUAL signal emission (for additional safety, already included in function)
+bool validSignal = not noRepaint or barstate.isconfirmed
+
+// PLOTS
+p0=plot(ma_res, "ma", (show_trend?general_dir>0?color.green:color.red:color.aqua), linewidth=3, force_overlay=true, display=display.all-display.status_line)
+plot(show_reg?ma_reg:na, "reg", color.fuchsia, force_overlay=true, display=display.all-display.status_line)
+plotshape(show_signals and validSignal?up:false, "UP",  style=shape.labeldown, location=location.belowbar, color=color.rgb(10, 189, 16, 30), text="UP", textcolor=color.white, force_overlay=true, display=display.all-display.status_line)
+plotshape(show_signals and validSignal?dn:false, "DN",  style=shape.labelup, location=location.abovebar, color=#ff2e2eb2, text="DN", textcolor=color.white, force_overlay=true, display=display.all-display.status_line)
+
+plot(len_x, "Dynamic Period", display=display.data_window-display.status_line)
+plot(res_dir, "ma dir", display=display.data_window-display.status_line)
+plot(use_reg?reg_dir:na, "reg dir", display=display.data_window-display.status_line)
+
+// Retest zones visualization
+float alpha = math.min(math.max((math.abs(close-ma_res) * zoneTransparency) / (zoneUpper-ma_res), 30), zoneTransparency)
+color gcolorUp=color.new(zoneColorUp, alpha)
+color gcolorDn=color.new(zoneColorDn, alpha)
+
+p1=plot(showRetestZones ? zoneUpper : na, "Zone Upper", gcolorUp, linewidth=3, style=plot.style_linebr, linestyle=plot.linestyle_dashed, force_overlay=true, display=display.all-display.status_line) // style_circles
+p2=plot(showRetestZones ? zoneLower : na, "Zone Lower", gcolorDn, linewidth=3, style=plot.style_linebr, linestyle=plot.linestyle_dashed, force_overlay=true, display=display.all-display.status_line)
+
+// Area fill between zones
+fill(p0, p1, gcolorUp, "Retest Zone Up Fill")
+fill(p2, p0, gcolorDn, "Retest Zone Dn Fill")
+
+// Retest count highlighting in areas
+float alpha1 = (inZone and retestEnabled and showRetestZones?30:zoneTransparency)
+fill(p0, p1, pendingUp?color.new(gcolorUp, alpha1):na, "Up Retest")
+fill(p0, p2, pendingDn?color.new(gcolorDn, alpha1):na, "Dn Retest")
+
+// **************************************
+// **  STATISTICS TABLE VISUALIZATION  **
+// **************************************
+
+// Calculate statistics and create the table with plots
+[winRate, avgProfit, avgLoss, profitFactor, totalReturn, maxDrawdown, consecutiveWins, consecutiveLosses, longRR, shortRR, longTP, shortTP, longSL, shortSL, openLong, openShort, closeLong, closeShort, hasLong, hasShort] = amt.stats((up?1:dn?-1:0), showTable, openingMode, useOCO, longTargetPct, longRiskPct, shortTargetPct, shortRiskPct, rrMode, rrCalculation, decayFactor, optimizationMode, exitPriceMode, showRoundedRR, showDetails, tableColor, tableTransp, granularity)
+
+plotshape(showTableSignals and openLong, "Open Long", shape.labelup, location.belowbar, color.green, text="T UP", textcolor=color.white, size=size.tiny, force_overlay=true, display=display.all-display.status_line)
+plotshape(showTableSignals and openShort, "Open Short", shape.labeldown, location.abovebar, color.red, text="T DN", textcolor=color.white, size=size.tiny, force_overlay=true, display=display.all-display.status_line)
+plotshape(showTableSignals and closeLong, "Close Long", shape.xcross, location.abovebar, color.green, size=size.tiny, force_overlay=true, display=display.all-display.status_line)
+plotshape(showTableSignals and closeShort, "Close Short", shape.xcross, location.belowbar, color.red, size=size.tiny, force_overlay=true, display=display.all-display.status_line)
+
+// PLOT TP/SL
+plot(showTPSL and hasLong ? longTP : na, "Long TP", color.green, style=plot.style_circles, force_overlay=true, display=display.all-display.status_line)
+plot(showTPSL and hasLong ? longSL : na, "Long SL", color.red, style=plot.style_circles, force_overlay=true, display=display.all-display.status_line)
+plot(showTPSL and hasShort ? shortTP : na, "Short TP", color.green, style=plot.style_circles, force_overlay=true, display=display.all-display.status_line)  
+plot(showTPSL and hasShort ? shortSL : na, "Short SL", color.red, style=plot.style_circles, force_overlay=true, display=display.all-display.status_line)
+
+
+
