@@ -30,14 +30,6 @@ Test Y: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-
 ### TEST - SAME TAB - Zoom OK
 Test 3: <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" alt="Options Tip" width="80">
 
-Qui:
-[![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
-SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif
-[![vid](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
-2
-[![Alt](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
-
-
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
 - Dynamic period + Linear Regression clamping
