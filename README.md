@@ -11,15 +11,15 @@
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
-### Gallery (click to enlarge + arrows)
-<img src="img/DAX_GER30.png" width="800"/>
-<img src="img/DOGEUSDT.P_00.png" width="800"/>
-<img src="img/DOGEUSDT.P_01.png" width="800"/>
-<img src="img/DOGEUSDT.P_02.png" width="800"/>
-<img src="img/DOGEUSDT.P_03.png" width="800"/>
-<img src="img/DOGEUSDT.P_04.png" width="800"/>
-<img src="img/DOGEUSDT.P_05.png" width="800"/>
-<img src="img/DOGEUSDT.P_06.png" width="800"/>
+### Gallery (click to enlarge + arrows → to slide)
+<img src="img/DAX_GER30.png" width="80"/>
+<img src="img/DOGEUSDT.P_00.png" width="80"/>
+<img src="img/DOGEUSDT.P_01.png" width="80"/>
+<img src="img/DOGEUSDT.P_02.png" width="80"/>
+<img src="img/DOGEUSDT.P_03.png" width="80"/>
+<img src="img/DOGEUSDT.P_04.png" width="80"/>
+<img src="img/DOGEUSDT.P_05.png" width="80"/>
+<img src="img/DOGEUSDT.P_06.png" width="80"/>
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
@@ -33,6 +33,7 @@
 ### Quick Import
 ```pinescript
 import Simone_View/AdvancedMAToolkit_Private/1 as amt
+```
 
 ### MQL4/5 Conversion · Custom Work
 Full port or custom EA in 24-48h (€100–300)  
