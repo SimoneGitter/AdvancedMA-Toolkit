@@ -20,13 +20,13 @@ a:<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX
 b:<img src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/refs/heads/main/img/DAX_GER30.png?token=GHSAT0AAAAAADMOG2SB7GNNHEDNPWHBLXGG2I5W2EQ" width="150"></img>
 c:<img width="1920" height="926" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
 d:<img src="https://raw.githubusercontent.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
-<img src="img/DOGEUSDT.P_00.png" width="80"></img>
-<img src="img/DOGEUSDT.P_01.png" width="80"></img>
-<img src="img/DOGEUSDT.P_02.png" width="80"></img>
-<img src="img/DOGEUSDT.P_03.png" width="80"/></img>
-<img src="img/DOGEUSDT.P_04.png" width="80"/></img>
-<img src="img/DOGEUSDT.P_05.png" width="80"/></img>
-<img src="img/DOGEUSDT.P_06.png" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_01.png" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_02.png" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_03.png" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_04.png" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_05.png"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" width="80"/></img>
 
 Test:
 <img src="https://raw.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
