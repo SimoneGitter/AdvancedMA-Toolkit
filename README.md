@@ -39,7 +39,7 @@ Test 1:
 Test 2:
 https://github.com/{repo_user}/{repo}/raw/{branch}/art/{path_to_the_image_in_repo}
 
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/x4/art/vid/DAX_GER30.gif" width="15%"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/x4/art/DAX_GER30.gif" width="15%"></img>
 
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
