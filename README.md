@@ -25,12 +25,8 @@
 ### TEST - NEW TAB - NO Zoom
 1:<img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
 c:<img width="80" height="50" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
-
-
-Test X: <img src="https://raw.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
 Test Y: <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
-Test Z: ![alt text](https://github.com/SimoneGitter/inline/raw/master/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
-Test W: ![alt text](https://github.com/SimoneGitter/inline/raw/main/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
+
 
 Test 1:
 ![alt text](/vid/DAX_GER30.gif)
