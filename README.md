@@ -33,12 +33,16 @@ Test:
 <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
 ![alt text](https://github.com/SimoneGitter/inline/raw/master/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
 
+Test 1:
+![alt text](/vid/DAX_GER30.gif)
+
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif
 [![vid](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 2
 [![Alt](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
+
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
