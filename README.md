@@ -1,6 +1,9 @@
 # AdvancedMA Toolkit – Complete Trading System with Auto-RR & Virtual Stats
 
-https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
+// https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
+// ![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/XRP_%26_Table.gif)
+
+![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
 
 > Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
