@@ -12,7 +12,7 @@
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
 ### Gallery (click to enlarge + arrows → to slide)
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX_GER30.png?raw=true" width="150"></img>
+<img src="https://cloud.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/img/DAX_GER30.png?raw=true" width="150"></img>
 <img src="img/DOGEUSDT.P_00.png" width="80"></img>
 <img src="img/DOGEUSDT.P_01.png" width="80"></img>
 <img src="img/DOGEUSDT.P_02.png" width="80"></img>
