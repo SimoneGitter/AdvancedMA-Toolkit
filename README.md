@@ -1,2 +1,24 @@
-# AdvancedMA-Toolkit
-Professional Pine Script v6 toolkit – 14-MA rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals (private beta)
+# AdvancedMA Toolkit – Complete Trading System with Auto-RR & Virtual Stats
+
+https://github.com/user/AdvancedMA-Toolkit/blob/main/demo_dax_1min.mp4
+
+> Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
+> Currently in **private** on TradingView fully accessible and usable for free from the links below
+
+### TradingView Links
+- Deep Dive Idea → [https://www.tradingview.com/chart/.../tuo-link-idea-private](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/)
+- Library → [https://www.tradingview.com/script/.../AdvancedMAToolkit_Private/](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
+- Indicator → [https://www.tradingview.com/script/.../AdvancedMA_Toolkit_Private/](https://www.tradingview.com/script/WrInRKvm/)
+
+### Core Features
+- 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
+- Dynamic period + Linear Regression clamping
+- Advanced retest zones (gradient + pending highlight)
+- Filter stack: Momentum + 3×ZLEMA + Inside Bar / Engulfing patterns
+- Statistics table with Auto-RR engine (Multi-Objective optimization)
+- Dual signals: Main “UP/DN” labels + Table-driven “T UP / T DN”
+- No-repaint mode · OCO / pyramiding / hedging modes
+
+### Quick Import
+```pinescript
+import Simone_View/AdvancedMAToolkit_Private/1 as amt
