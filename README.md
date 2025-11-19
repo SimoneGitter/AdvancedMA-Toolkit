@@ -28,7 +28,7 @@
 <img src="img/DOGEUSDT.P_05.png" width="80"/></img>
 <img src="img/DOGEUSDT.P_06.png" width="80"/></img>
 
-[![Preview](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.gif)](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.gif)
+[![img](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.gif)](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.gif)
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
