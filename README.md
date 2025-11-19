@@ -32,14 +32,14 @@ Test:
 <img src="https://raw.githubusercontent.com/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" width="15%"></img> 
 <img src="https://github.com/user-attachments/assets/19dd38e3-3e7a-47af-9401-f660ae3f7aff" width="15%"></img>
 ![alt text](https://github.com/SimoneGitter/inline/raw/master/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
+![alt text](https://github.com/SimoneGitter/inline/raw/main/src/common/vid/DAX_GER30.gif "Logo Title Text 1")
 
 Test 1:
 ![alt text](/vid/DAX_GER30.gif)
 
 Test 2:
 https://github.com/{repo_user}/{repo}/raw/{branch}/art/{path_to_the_image_in_repo}
-
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/art/vid/DAX_GER30.gif" width="15%"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/art/vid/DAX_GER30.gif" width="15%"></img>
 
 Qui:
 [![vid](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/DAX_GER30.gif)
