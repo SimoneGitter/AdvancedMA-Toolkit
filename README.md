@@ -47,10 +47,10 @@
 import Simone_View/AdvancedMAToolkit_Private/1 as amt
 ```
 
+![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/XRP_%26_Table.gif)
+
 ### MQL4/5 Conversion · Custom Work
 Full port or custom EA in 24-48h (€100–300)  
 TradingView @Simone_View · GitHub @tuo-username
-
-![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/XRP_%26_Table.gif)
 
 Open for freelance · DM on TradingView or here on GitHub
