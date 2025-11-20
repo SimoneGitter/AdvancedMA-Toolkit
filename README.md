@@ -7,18 +7,18 @@
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
 
 ### TradingView Links
-- Deep Dive Idea → [Take a look at the full ecosystem behind](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/?raw=true)
+- Deep Dive Idea → [Take a look at the full ecosystem behind](https://www.tradingview.com/chart/XRPUSDT.P/odQITmXl/)
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
 ### Gallery (click to enlarge + arrows → to slide)
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png" target="_blank" width="80"></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_01.png" width="80"></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_02.png" width="80"></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_03.png" width="80"/></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_04.png" width="80"/></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_05.png" width="80"/></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_00.png?raw=true" target="_blank" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_01.png?raw=true" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_02.png?raw=true" width="80"></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_03.png?raw=true" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_04.png?raw=true" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_05.png?raw=true" width="80"/></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png?raw=true" width="80"/></img>
 
 ### TEST - NEW TAB - NO Zoom
 1: <img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
