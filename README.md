@@ -26,7 +26,7 @@
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/AdvancedMAToolkit.gif" alt="Image" width="15%" ></img>
 
 ### Tip - Table enhancement
-<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true?raw=true" alt="Image" width="25%" />
+<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
 
 *Right padding to avoid table overlap
 
@@ -48,6 +48,6 @@ import Simone_View/AdvancedMAToolkit_Private/1 as amt
 Full port or custom EA in 24-48h (€100–300)  
 TradingView @Simone_View · GitHub @tuo-username
 
-![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/XRP_%26_Table.gif)
+![Alt](https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/XRP_%26_Table.gif?raw=true)
 
 Open for freelance · DM on TradingView or here on GitHub
