@@ -1,7 +1,7 @@
 # AdvancedMA Toolkit  
 *Complete Trading System · Auto-RR · Virtual Stats · Dual Signals*
 
-![Alt](https://github.com/user-attachments/assets/06a2a83b-d474-41e5-8e5c-11b964ee5068?raw=true)
+![Main Demo](https://github.com/user-attachments/assets/06a2a83b-d474-41e5-8e5c-11b964ee5068?raw=true)
 
 > Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
 > Currently in **private** on TradingView fully accessible and usable for free from the links below
@@ -11,7 +11,7 @@
 - Library → [AdvancedMAToolkit_Private](https://www.tradingview.com/script/7Qsnrj08-AdvancedMAToolkit-Private/)
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
-### Gallery (click to enlarge + arrows → to slide)
+### Image Gallery (click to open full-size)
 <img src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" alt="Image" width="15%" target="_blank" ></img>
 <img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" ></img>
 <img src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d?raw=true" alt="Image" width="15%" ></img>
@@ -29,7 +29,7 @@
 
 ### Tip - Table enhancement (*Right padding to avoid table overlap*)
 
-<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
+<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="30%" />
 
 > Right-click chart → Settings gear icon → Canvas → “Right Bars” → Set for clean table view
 
