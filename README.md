@@ -1,6 +1,6 @@
 # AdvancedMA Toolkit  
 *Complete Trading System · Auto-RR · Virtual Stats · Dual Signals*
-
+,m,.mm
 ![Main Demo](https://github.com/user-attachments/assets/06a2a83b-d474-41e5-8e5c-11b964ee5068?raw=true)
 
 > Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
