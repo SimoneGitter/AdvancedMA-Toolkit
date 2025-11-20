@@ -27,8 +27,7 @@
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/Mix_Vid_All.gif" alt="Image" width="19.5%" ></img>
 <img src="https://github.com/user-attachments/assets/e928a89a-4c9b-4106-99b2-afff7a7822cc?raw=true" alt="Image" width="2.5%" ></img>
 
-### Tip - Table enhancement
-*Right padding to avoid table overlap*
+### Tip - Table enhancement (*Right padding to avoid table overlap*)
 
 <img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
 
