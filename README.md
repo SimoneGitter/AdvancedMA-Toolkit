@@ -25,7 +25,6 @@
 ### Video Gallery
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/AdvancedMAToolkit.gif" alt="Image" width="15%" ></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/Mix_Vid_All.gif" alt="Image" width="20%" ></img>
-
 <img src="https://github.com/user-attachments/assets/e928a89a-4c9b-4106-99b2-afff7a7822cc?raw=true" alt="Image" width="2%" ></img>
 
 ### Tip - Table enhancement
