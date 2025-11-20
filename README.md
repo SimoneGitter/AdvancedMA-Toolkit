@@ -1,6 +1,8 @@
 # AdvancedMA Toolkit  
 *Complete Trading System · Auto-RR · Virtual Stats · Dual Signals*
 
+# AdvancedMA Toolkit  
+<span style="font-size:0.9em; color:#aaa;">Complete Trading System with Auto-RR & Virtual Stats</span>
 ![Alt](https://private-user-images.githubusercontent.com/220075474/516262385-824ad646-abc2-40a7-97ad-955afcb08ad1.gif?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjM1NTU3MjUsIm5iZiI6MTc2MzU1NTQyNSwicGF0aCI6Ii8yMjAwNzU0NzQvNTE2MjYyMzg1LTgyNGFkNjQ2LWFiYzItNDBhNy05N2FkLTk1NWFmY2IwOGFkMS5naWY_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUxMTE5JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MTExOVQxMjMwMjVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1mYTBiNmNiNzA2MTBlZTkxOGYwODgyNmRjYThkM2I5OWVjZWJjNTljNDYxMGRiZGIxYmU2NjdmYjg4YzllN2EwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.-RQBoql0YBCa7-KZp9LiS0qIXCvzErcJxYs7b-GmjuA)
 
 > Pine Script v6 · 14 MA types Rotator · Dynamic period · Retest zones · Full filter stack · Auto-RR engine · Dual signals  
