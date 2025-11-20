@@ -23,8 +23,7 @@
 <img src="https://github.com/user-attachments/assets/8f724e62-168b-4005-b7f2-f6971e4f9d67?raw=true" alt="Image" width="15%" ></img>
 
 ### Video Gallery
-<img src="vid/AdvancedMAToolkit.gif?raw=true" alt="Image" width="15%" ></img>
-
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/vid/AdvancedMAToolkit.gif?raw=true" alt="Image" width="15%" ></img>
 
 ### Tip - Table enhancement
 <img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
