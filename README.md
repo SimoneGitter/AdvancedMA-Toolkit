@@ -12,14 +12,18 @@
 - Indicator → [AdvancedMA_Toolkit_Private](https://www.tradingview.com/script/WrInRKvm/)
 
 ### Gallery (click to enlarge + arrows → to slide)
-<img src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" alt="Image" width="15%" /><img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" target="_blank" />
+<img src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" alt="Image" width="15%" target="_blank" />
+<img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" />
 <img src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d?raw=true" alt="Image" width="15%" />
 <img src="https://github.com/user-attachments/assets/ce52580d-d584-4b41-b513-9cf6564b8bc0?raw=true" alt="Image" width="15%" />
 <img src="https://github.com/user-attachments/assets/f4e3c739-bfc1-440a-a685-ebb3b808fc60?raw=true" alt="Image" width="15%" />
-<img src="https://github.com/user-attachments/assets/9f40dda2-39e9-479c-ad61-d1860523b72b?raw=true" alt="Image" width="15%" /><img src="https://github.com/user-attachments/assets/5662ef01-753a-460d-8105-414eb5d91e3a?raw=true" alt="Image" width="15%" /><img src="https://github.com/user-attachments/assets/8f724e62-168b-4005-b7f2-f6971e4f9d67?raw=true" alt="Image" width="15%" />
+<img src="https://github.com/user-attachments/assets/9f40dda2-39e9-479c-ad61-d1860523b72b?raw=true" alt="Image" width="15%" />
+<img src="https://github.com/user-attachments/assets/5662ef01-753a-460d-8105-414eb5d91e3a?raw=true" alt="Image" width="15%" />
+<img src="https://github.com/user-attachments/assets/8f724e62-168b-4005-b7f2-f6971e4f9d67?raw=true" alt="Image" width="15%" />
 
-### Tip
-<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="15%" />
+### Tip - Table enhancement
+<img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
+*Right padding to avoid table overlap
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
