@@ -16,7 +16,7 @@
 <img src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" alt="Image" width="15%" target="_blank" /><br>
 </p>
 <a href="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274" title="test">
-	<img alt="testo alternativo" src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274" width="66" height="49" />
+	<img alt="testo alternativo" src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274" width="15%" target="_blank" />
 </a>
 <img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" /><br>
 <img src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d?raw=true" alt="Image" width="15%" ></img>
