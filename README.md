@@ -20,6 +20,16 @@
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_05.png?raw=true" width="80"/></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png?raw=true" width="80"/></img>
 
+<img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d" />
+<img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d" />
+<img width="1824" height="1040" alt="Image" src="https://github.com/user-attachments/assets/ce52580d-d584-4b41-b513-9cf6564b8bc0" />
+<img width="1824" height="1040" alt="Image" src="https://github.com/user-attachments/assets/f4e3c739-bfc1-440a-a685-ebb3b808fc60" />
+<img width="685" height="881" alt="Image" src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b" />
+<img width="1920" height="926" alt="Image" src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274" />
+<img width="1597" height="882" alt="Image" src="https://github.com/user-attachments/assets/9f40dda2-39e9-479c-ad61-d1860523b72b" />
+<img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/5662ef01-753a-460d-8105-414eb5d91e3a" />
+<img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/8f724e62-168b-4005-b7f2-f6971e4f9d67" />
+
 ### TEST - NEW TAB - NO Zoom
 1: <img src="https://github.com/user-attachments/assets/824ad646-abc2-40a7-97ad-955afcb08ad1" width="15%"></img>
 2: <img width="80" height="50" alt="Image" src="https://github.com/user-attachments/assets/a2f085c7-0afb-4bc3-8b3e-c853ffa04f40" />
