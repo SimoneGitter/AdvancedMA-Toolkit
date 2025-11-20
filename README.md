@@ -18,17 +18,17 @@
 <img src="https://github.com/user-attachments/assets/5662ef01-753a-460d-8105-414eb5d91e3a?raw=true" alt="Image" width="15%" ></img>
 
 <img src="https://github.com/user-attachments/assets/8f724e62-168b-4005-b7f2-f6971e4f9d67?raw=true" alt="Image" width="15%" ></img>
+<img src="https://github.com/user-attachments/assets/9f40dda2-39e9-479c-ad61-d1860523b72b?raw=true" alt="Image" width="15%" ></img>
 <img src="https://github.com/user-attachments/assets/ce52580d-d584-4b41-b513-9cf6564b8bc0?raw=true" alt="Image" width="15%" ></img>
 <img src="https://github.com/user-attachments/assets/f4e3c739-bfc1-440a-a685-ebb3b808fc60?raw=true" alt="Image" width="15%" ></img>
-<img src="https://github.com/user-attachments/assets/9f40dda2-39e9-479c-ad61-d1860523b72b?raw=true" alt="Image" width="15%" ></img>
 
 ### Video Gallery
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/AdvancedMAToolkit.gif" alt="Image" width="15%" ></img>
-<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/Mix_Vid_All.gif" alt="Image" width="19%" ></img>
+<img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/blob/main/vid/Mix_Vid_All.gif" alt="Image" width="19.5%" ></img>
 <img src="https://github.com/user-attachments/assets/e928a89a-4c9b-4106-99b2-afff7a7822cc?raw=true" alt="Image" width="2.5%" ></img>
 
 ### Tip - Table enhancement
-*Right padding to avoid table overlap
+*Right padding to avoid table overlap*
 
 <img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
 
