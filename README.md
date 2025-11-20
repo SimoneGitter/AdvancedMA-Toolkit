@@ -15,7 +15,7 @@
 <p>
 <img src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" alt="Image" width="15%" target="_blank" /><br>
 </p>
-<a href="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/img/DAX_GER30.png" title="test">
+<a href="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/img/DAX_GER30.png" title="test" target="_blank">
 	<img alt="testo alternativo" src="https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/img/DAX_GER30.png" width="15%" target="_blank" />
 </a>
 
