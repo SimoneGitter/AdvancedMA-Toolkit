@@ -30,8 +30,10 @@
 
 ### Tip - Table enhancement
 *Right padding to avoid table overlap
+
 <img src="https://github.com/user-attachments/assets/0f4f913c-3761-41bd-ad67-cedbb423d55b?raw=true" alt="Image" width="25%" />
-Right-click chart → Settings gear icon → Canvas → “Right Bars” → Set for clean table view
+
+> Right-click chart → Settings gear icon → Canvas → “Right Bars” → Set for clean table view
 
 ### Core Features
 - 14 MA Types Rotator: Including T3, SuperTrend, FRAMA, HMA, ZLEMA, and more.
