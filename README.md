@@ -18,7 +18,7 @@
 <a href="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" title="test">
 	<img alt="testo alternativo" src="https://github.com/user-attachments/assets/8371ad3e-5fc6-4204-aa30-37fabb456274?raw=true" width="15%" target="_blank" />
 </a>
-![Preview](https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/preview/DAX_GER30.png)](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.png)
+[Preview][(https://raw.githubusercontent.com/SimoneGitter/AdvancedMA-Toolkit/main/preview/DAX_GER30.png)](https://raw.githubusercontent.com/IlTuoUsername/AdvancedMA-Toolkit/main/preview/DAX_GER30.png)
 <img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" /><br>
 <img src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d?raw=true" alt="Image" width="15%" ></img>
 <img src="https://github.com/user-attachments/assets/5662ef01-753a-460d-8105-414eb5d91e3a?raw=true" alt="Image" width="15%" ></img>
