@@ -20,7 +20,7 @@
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_05.png?raw=true" width="80"/></img>
 <img src="https://github.com/SimoneGitter/AdvancedMA-Toolkit/raw/main/img/DOGEUSDT.P_06.png?raw=true" width="80"/></img>
 
-<img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d" />
+<img src="https://github.com/user-attachments/assets/3970ad1e-0a83-4732-ab62-161f4b7f883d?raw=true" alt="Image" width="15%" />
 <img width="1824" height="882" alt="Image" src="https://github.com/user-attachments/assets/af1ba2f8-9867-4166-907f-ec7ef614e27d" />
 <img width="1824" height="1040" alt="Image" src="https://github.com/user-attachments/assets/ce52580d-d584-4b41-b513-9cf6564b8bc0" />
 <img width="1824" height="1040" alt="Image" src="https://github.com/user-attachments/assets/f4e3c739-bfc1-440a-a685-ebb3b808fc60" />
