@@ -51,6 +51,6 @@ import Simone_View/AdvancedMAToolkit_Private/1 as amt
 
 ### MQL4/5 Conversion · Custom Work
 Full port or custom EA in 24-48h (€100–300)  
-TradingView @Simone_View · GitHub @tuo-username
+TradingView @Simone_View · GitHub @SimoneGitter
 
 Open for freelance · DM on TradingView or here on GitHub
