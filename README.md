@@ -54,3 +54,4 @@ Full port or custom EA in 24-48h (€100–300)
 TradingView @Simone_View · GitHub @SimoneGitter
 
 Open for freelance · DM on TradingView or here on GitHub
+- Freelance Service → [Freelance Service](https://www.upwork.com/freelancers/~01fff326d464058575?mp_source=share)
